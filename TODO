@@ -1,0 +1,85 @@
+* This is the global C! TODO list
+
+* move TODO list in english and trad. TODO form.
+
+   I've moved a little the TODO list in more classical TODO form (so
+   that it's handled correctly by the todoo mode of emacs.) Some items
+   are still in french, they need to be translated to english.
+
+* static c! -- need to be schedule !
+
+   We need to find a syntax and define edges of our goals.
+
+   We retained the following priority schedule:
+
+   - (typeded) Constants definition (DONE)
+   - classical macro function (DONE)
+   - static switch and likes
+   - templates (?)
+
+* global fix of error messages -- need to be schedule !
+
+   The error messages system in C! is a total mess. We need a better framework
+   and more structuring.
+
+   We, also, have to solve (at least for C!) the never ending troll about «
+   should a compiler stop a the first error or try to continue as long as it
+   can ? »
+
+   I (Marwan) am more on the side of the first error: it's simpler, it's safer
+   (do not output unlucky transitive errors) and it's already available.
+
+   The wiser way would be to provide options to activate one or an other.
+
+   The way error messages are written need also some fixes. The debug printing
+   system could serves as a model for a better error writter (with levels for
+   warning.)
+
+* Update/Rewrite whitepaper
+
+   Whitepaper is completely out of sync with C! state for now. Articles for
+   the LSE's blog are far more accurate, and can serve as a good starting
+   point for a language user doc.
+
+* Tests
+
+   This is a quick list of what need testing (in order of importance.)
+   An obvious item is hidden here: everything !
+
+   - import -- new form, need intense testing
+   - prototypes and module interface -- need testing
+   - constructors -- need testing
+   - MClass -- need more testing
+   - asm -- need testing !
+   - switch typing -- need testing
+
+* BUGS (this part is probably out of date.):
+
+
+   - BUG : la macro MASK n'est pas utilisée dans return :
+      func () : int<4> { return 55; }
+      est compile en :
+      int8_t func() { return 55 ; }
+      et non en :
+      int8_t func() { return MASK(4, 55) ; }
+
+      Pour fixer ca il faut pouvoir recuperer le "type" d'un return.
+
+   - BUG : func () : int<1> { return 2; } annonce un type mismatch.
+   - BUG : dans le lexing des flotants, nan et infinity ne sont pas acceptes.
+
+
+* Selfhost requirements:
+
+   In order to start a selfhost C!, the following requirements were
+   identified:
+
+   - class:
+   -  constructors
+   -  fixer la structures des classes générées
+   - module:
+   -  bug fix
+   -  mangling
+   -  problème des symboles externes (syntaxe ?)
+   - aspect static (au moins des constantes)
+   - tester les enums ...

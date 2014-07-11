@@ -1,0 +1,12 @@
+class Useless
+{
+    i : int<+64> = 0;
+}
+
+my_test_array() : int<+64>
+{
+    for (useless_array : local Useless[sizeof(Useless)]; 0;)
+    {
+    }
+    return 0;
+}

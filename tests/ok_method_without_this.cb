@@ -1,0 +1,13 @@
+// The use of a method without calling it with 'this' should fail.
+
+class A
+{
+    my_method() : void
+    {
+    }
+
+    caller_method() : void
+    {
+        my_method();
+    }
+}

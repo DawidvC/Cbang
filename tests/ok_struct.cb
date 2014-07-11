@@ -1,0 +1,21 @@
+struct A
+{
+  x : int<32>;
+  y : int<32>;
+}
+
+packed B
+{
+  x : int<32>;
+  y : int<16>;
+}
+
+main() : int<32>
+{
+  a : A;
+  b : A;
+
+  /* a = b; */
+
+  return 0;
+}

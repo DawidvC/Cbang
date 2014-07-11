@@ -1,0 +1,39 @@
+// Mask adder for assignation
+
+// Shouldn’t add a mask
+meaninglessMaskTest::test1() : int<32>
+{
+  return 1;
+}
+// Should add a mask
+meaninglessMaskTest::test2() : int<4>
+{
+  value : int<8> = 127;
+  result : int<4> = value;
+  return result;
+}
+
+// Should add a mask
+meaninglessMaskTest::test3() : int<4>
+{
+  value : int<8> = 127;
+  result : int<4> = 0;
+  result = value;
+  return result;
+}
+
+// Should add a mask
+meaninglessMaskTest::test4() : int<4>
+{
+    return 127;
+}
+
+// Should add a mask when calling it
+ingoingMask(param : int<4>) : int<8>
+{
+    return param;
+}
+meaninglessMaskTest::test5() : int<8>
+{
+    return ingoingMask(127);
+}

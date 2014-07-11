@@ -1,0 +1,68 @@
+/* test */
+
+typedef t = int<32>;
+
+x : int<32> = 42 ;
+
+y : int<32> = x + 1;
+
+class test::C (x: int<32>)
+{
+  x : int<32> = x;
+  f() : int<32>
+  {
+    return 42;
+  }
+}
+
+struct s_toto
+{
+  a : int<32>;
+  b : int<32>;
+}
+
+typedef toto = (s_toto*[42])*;
+typedef tata = toto;
+
+struct packed s_toto
+{
+  a : int<32>;
+  b : int<32>;
+}
+
+union u_toto
+{
+  i : int<32>;
+  p : void*;
+}
+
+enum e_toto
+  {
+    `A=1; `B; `C;
+  }
+
+f(x : int<32>) : int<+32>
+{
+  y : int<32> = 2;
+  z : (int<+32>)*;
+  e : e_toto = A;
+  a : s_toto;
+
+
+  *z = 42;
+  y = 2 * x + *z;
+
+
+  if (++x)
+    return 2;
+
+  if (x)
+    {
+      return (-42);
+    }
+  else
+    {
+      while (1) ;
+    }
+
+}

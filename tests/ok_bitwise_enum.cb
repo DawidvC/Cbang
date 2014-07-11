@@ -1,0 +1,11 @@
+enum flags
+{
+    `READ;
+    `WRITE;
+    `EXECUTE;
+}
+
+test() : int<64>
+{
+    return `READ | `WRITE;
+}

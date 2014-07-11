@@ -1,0 +1,13 @@
+/* Simple interface test */
+/* fail: conflict with inherit  */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface xbox : box
+{
+  get() : void;
+}

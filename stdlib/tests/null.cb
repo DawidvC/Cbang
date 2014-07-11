@@ -1,0 +1,15 @@
+/* std: testing      */
+/* Checking for NULL */
+
+f() : void*
+{
+  return NULL;
+}
+
+main() : int<32>
+{
+  p : void*;
+  p = f();
+
+  return 0;
+}

@@ -1,0 +1,17 @@
+macro class foo : int<32>
+{
+  get() : int<32>
+  {
+    return 42;
+  }
+}
+
+g(bar:foo) : foo
+{
+  return bar;
+}
+
+f(bar : foo) : void
+{
+  g(bar).get();
+}

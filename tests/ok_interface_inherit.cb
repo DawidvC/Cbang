@@ -1,0 +1,30 @@
+/* Simple interface test */
+/* interface inheritance */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface xbox : box
+{
+  clear() : void;
+}
+
+class A support xbox
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  get() : void*
+  {
+    return content;
+  }
+
+  clear() : void { content = (0:void*); }
+
+}

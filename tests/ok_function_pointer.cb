@@ -1,0 +1,12 @@
+a : <()> : int<32>;
+
+foo() : int<32>
+{
+  return 2;
+}
+
+main() : int<32>
+{
+  a = foo;
+}
+

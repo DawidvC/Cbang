@@ -1,0 +1,10 @@
+// Test for module importing
+
+// Use of an exported typename.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : import_module::myint;
+}

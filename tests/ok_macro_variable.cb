@@ -1,0 +1,2 @@
+#width : int<32> = 400;
+#height : int<32> = width * 3 / 4;

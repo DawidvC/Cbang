@@ -1,0 +1,28 @@
+/* Simple interface test */
+/* fail: missing method (inheritance) */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface xbox : box
+{
+  clear() : void;
+}
+
+class A support xbox
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  clear() : void
+  {
+    content = (0:void*);
+  }
+
+}

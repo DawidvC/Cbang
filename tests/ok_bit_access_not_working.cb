@@ -1,0 +1,8 @@
+foo() : void
+{
+  // Should not work with signed int !
+  // a : int<32>;
+  a : int<+32>;
+
+  a[1] = 12;
+}

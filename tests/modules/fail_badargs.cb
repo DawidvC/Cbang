@@ -1,0 +1,11 @@
+// Test for module importing
+
+// Use an exported function than must fail because of the bad arguments list.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : int<32> = 0;
+    my_var = import_module::identity();
+}

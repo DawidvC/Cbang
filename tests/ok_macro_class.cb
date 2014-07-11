@@ -1,0 +1,13 @@
+struct Cursor_struct
+{
+  x : int<+8>;
+  y : int<+8>;
+}
+
+macro class Cursor : Cursor_struct
+{
+  step(value : int<+8>) : void
+  {
+    this.x += value;
+  }
+}

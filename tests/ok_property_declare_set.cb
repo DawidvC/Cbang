@@ -1,0 +1,28 @@
+/*
+ * Testing properties
+ */
+
+struct segint {
+  h: int<+16>*;
+  l: int<+16>*;
+}
+
+property P(segint) : int<+32>
+{
+  get { return (*(this.h) << 16) + *(this.l); }
+  set (y : int<+32>) {
+    *(this.h) = y >> 16;
+    *(this.l) = y & 0xffff;
+  }
+}
+
+main() : int<32>
+{
+  s : segint;
+  high : int<+16> = 0;
+  low : int<+16> = 0;
+  s.h = &high;
+  s.l = &low;
+  x : P = s;
+  return 0;
+}

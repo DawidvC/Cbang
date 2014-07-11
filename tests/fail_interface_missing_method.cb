@@ -1,0 +1,18 @@
+/* Simple interface test */
+/* fail: missing method  */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+class A support box
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+}

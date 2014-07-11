@@ -1,0 +1,4 @@
+// Volatile test
+
+x : void* volatile;
+y: (void* volatile) *;

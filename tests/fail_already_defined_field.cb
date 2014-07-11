@@ -1,0 +1,7 @@
+// Test for double declarations of a field
+
+struct A
+{
+    my_field : int<32>;
+    my_field : int<32>;
+}

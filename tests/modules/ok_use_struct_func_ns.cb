@@ -1,0 +1,12 @@
+// Test for module importing
+
+// Use of a exported function that use an exported structure. The function is
+// defined used the local name of the structure.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : import_module::point;
+    import_module::func_struct_ns(&my_var);
+}

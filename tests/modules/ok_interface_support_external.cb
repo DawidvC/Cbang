@@ -1,0 +1,22 @@
+// Support interfaces from another namespace.
+
+import interface_point;
+
+class Point support interface_point::Point
+{
+  x : float<32>;
+  y : float<32>;
+
+  init() { x = 0; y = 0 ; }
+
+  get_x() : float<32> { return x; }
+  set_x(x : float<32>) : void { this.x = x; }
+  get_y() : float<32> { return y; }
+  set_y(y : float<32>) : void { this.y = y; }
+
+  module() : float<32>
+  {
+    return x*x + y*y;
+  }
+
+}

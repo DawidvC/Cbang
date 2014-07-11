@@ -1,0 +1,22 @@
+class Nested
+{
+    embeded : char;
+    number : int<64> = 1;
+}
+
+class Useless
+{
+    magic : char;
+    nested := local Nested();
+
+    get_one() : int<64>
+    {
+        return nested.number;
+    }
+}
+
+my_test() : int<64>
+{
+    useless := local Useless();
+    return useless.get_one() + useless.nested.number;
+}

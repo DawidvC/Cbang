@@ -1,0 +1,22 @@
+// BIT index
+// Read test
+
+// Always 0
+intIndexedReading::firstTest() : int<+1>
+{
+  x : int<+32> = 0;
+  test : int<+1> = 1;
+  for ( i : int<+8> = 0; test && i<32; ++i)
+    test = test && !(x[i]);
+  return test;
+}
+
+// Check 1 in the right place
+intIndexedReading::secondTest() : int<+1>
+{
+  x : int<+32> = 1;
+  test : int<+1> = 1;
+  for ( i : int<+8> = 0; i<32 && test; x <<= 1)
+    test = test && x[i++];
+  return test;
+}

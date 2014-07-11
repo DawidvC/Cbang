@@ -1,0 +1,4 @@
+// Test for double definition of a variable
+
+typedef my_typename = int<32>;
+typedef my_typename = int<32>;

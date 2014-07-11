@@ -1,0 +1,9 @@
+// Test for symbol exporting
+
+// Exporting a typename using the wrong namespace must fail.
+
+struct wrong_module::my_struct
+{
+    field1 : int<32>;
+    field2 : float<64>;
+}

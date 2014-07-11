@@ -1,0 +1,18 @@
+/* Testing Switch */
+
+f(x : char) : char*
+{
+  s : char*;
+  switch (x)
+    {
+    case 'a' :
+      s = "letter a";
+      break;
+    case 'b' :
+      s = "letter b";
+      break;
+    default :
+      s = "other letter";
+    }
+  return s;
+}

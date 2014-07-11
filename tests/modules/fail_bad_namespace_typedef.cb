@@ -1,0 +1,5 @@
+// Test for symbol exporting
+
+// Exporting a typename using the wrong namespace must fail.
+
+typedef wrong_module::my_typename = int<32>;

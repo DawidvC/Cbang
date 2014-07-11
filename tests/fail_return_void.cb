@@ -1,0 +1,6 @@
+// Invalid use of return: no expression in a function that doesn't return void.
+
+return_not_void() : int<8>
+{
+    return;
+}

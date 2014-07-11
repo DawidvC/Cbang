@@ -1,0 +1,8 @@
+// Test for symbol exporting
+
+// Exporting a symbol using the wrong namespace must fail.
+
+wrong_module::main() : int<32>
+{
+    return 42;
+}

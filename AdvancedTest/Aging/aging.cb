@@ -1,0 +1,124 @@
+// Testing advanced language: implementing aging algorithm
+
+// This only a proof of concept used to simulate aging on a set of
+// pseudo pages
+
+import allocbind;
+
+typedef aging::t_alloc = <(size_t)> : void*;
+typedef aging::t_intprinter = <(int<+32>)> : void;
+typedef aging::t_strprinter = <(char*)> : void;
+typedef aging::t_rand = <()> : int<+32>;
+
+class aging::Printer
+{
+  intprinter : t_intprinter;
+  strprinter : t_strprinter;
+
+  setPrinters(ip : t_intprinter, sp : t_strprinter) : void
+  {
+    intprinter = ip;
+    strprinter = sp;
+  }
+
+  print_int(x : int<+32>) : void
+  {
+    intprinter(x);
+  }
+
+  print_string(x : char*) : void
+  {
+    strprinter(x);
+  }
+}
+
+class aging::Page
+{
+  status: int<+32> = 0;
+  readflag : int<+1> = 0;
+  read() : void
+  {
+    readflag = 1;
+  }
+
+  getStatus() : int<+32>
+  {
+    return status;
+  }
+
+  update() : int<+32>
+  {
+    status >>= 1;
+    status[31] = readflag;
+    readflag = 0;
+    return status;
+  }
+
+}
+
+class aging::PageManager
+{
+  pages : Page[32];
+  ops : int<+32> = 0;
+  findOlder() : int<+32>
+  {
+    i : int<+32>;
+    r : int<+32> = 0;
+    for (i=0; i<32; ++i)
+      if (pages[i].getStatus() < pages[r].getStatus())
+	r = i;
+    return r;
+  }
+
+  initPages(alloc : t_alloc) : void
+  {
+    for (i : int<+32> = 0; i<32; ++i)
+      pages[i] = Page(alloc(sizeof (Page)));
+  }
+
+  read(i : int<+32>) : void
+  {
+    ops++;
+    pages[i].read();
+    this.update();
+  }
+
+  getStatus(i : int<+32>) : int<+32>
+  {
+    return pages[i].getStatus();
+  }
+
+  update(): void
+  {
+    if (ops > 8)
+      {
+	ops = 0;
+	for (i : int<+32> = 0; i<32; ++i)
+	  pages[i].update();
+      }
+  }
+
+}
+
+aging::test(ip : t_intprinter, sp : t_strprinter, rand : t_rand):void
+{
+  alloc : t_alloc = allocbind::malloc;
+  mem : PageManager = PageManager(alloc(sizeof (PageManager)));
+  print : Printer = Printer(alloc(sizeof (Printer)));
+  print.setPrinters(ip,sp);
+  mem.initPages(alloc);
+  for (i : int<+32> = 0; i<256; ++i)
+    {
+      p : int<+32> = rand()%32;
+      print.print_string("reading: ");
+      print.print_int(p);
+      print.print_string("\n");
+      mem.read(p);
+      print.print_string("older: ");
+      old : int<+32> = mem.findOlder();
+      print.print_int(old);
+      print.print_string(" : ");
+      print.print_int(mem.getStatus(old));
+      print.print_string("\n");
+    }
+}

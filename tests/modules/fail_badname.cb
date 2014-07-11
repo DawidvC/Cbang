@@ -1,0 +1,12 @@
+// Test for module importing
+
+// Must fail because of the use of an undeclared function in the module's
+// namespace.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : int<32>;
+    my_var = import_module::does_not_exist(42);
+}

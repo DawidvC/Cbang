@@ -1,0 +1,11 @@
+class Nested
+{
+    embeded : char;
+    number : int<64> = 1;
+}
+
+struct Useless
+{
+    magic : char;
+    nested : local Nested;
+}

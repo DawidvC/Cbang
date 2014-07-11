@@ -1,0 +1,19 @@
+include "stdlib.h";
+
+malloc(size : size_t) : void* as malloc;
+free(ptr : void*) : void as free;
+
+AllocArrayOfSize_t(size : size_t, ini : size_t) : size_t*
+{
+  array : size_t* = malloc(size * sizeof (size_t));
+
+  for (i : size_t = 0; i < size; i++)
+    array[i] = ini;
+
+  return array;
+}
+
+FreeArrayOfSize_t(array : size_t*) : void as FreeArrayOfSize_t
+{
+  free(array);
+}

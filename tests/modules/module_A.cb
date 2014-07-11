@@ -1,0 +1,16 @@
+// First module to import for cross-module testing
+// This one exports a symbol and a type, and import the module_D
+
+import module_D;
+// The module_D isn't used here, but it's not important
+
+struct my_box
+{
+    value1 : int<32>;
+    value2 : float<64>;
+}
+
+my_function() : int<32>
+{
+    return 1;
+}

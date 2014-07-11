@@ -1,0 +1,12 @@
+// Stdlib wrapper
+
+include "stdlib.h";
+
+// size_t declaration for C interface compatibility and native size
+// support
+typedef size_t = int<+64>;
+
+malloc(size : size_t) : void* as malloc;
+calloc(number : size_t, size : size_t) : void* as calloc;
+realloc(p : void*, size : size_t) : void* as realloc;
+free(p : void*) : void as free;

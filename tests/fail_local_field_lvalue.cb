@@ -1,0 +1,15 @@
+class Nested
+{
+    embeded : char;
+}
+
+class Useless
+{
+    magic : char;
+    nested : local Nested = Nested(local);
+
+    invalid_lvalue(obj : Nested) : void
+    {
+        nested = obj;
+    }
+}

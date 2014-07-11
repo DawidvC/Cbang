@@ -1,0 +1,27 @@
+/* Testing enum */
+
+enum ok_enum::variant {
+  `A1;
+  `A2;
+  `A3 = 42;
+}
+
+ok_enum::test0(x : variant) : void
+{
+  // Are we able to affect tags or value from enum
+  y : variant;
+  z : variant;
+
+  y = x;
+  z = `A1;
+
+}
+
+ok_enum::test1(x : variant) : int<32>
+{
+  y : int<32> = 42;
+  // are we able to compare x and a tag ?
+  if (x == `A1)
+    return 0;
+  return y;
+}

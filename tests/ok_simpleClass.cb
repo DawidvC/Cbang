@@ -1,0 +1,23 @@
+/* Simple Class example */
+
+class A
+{
+  x : int<4>;
+  get() : int<4>
+  {
+    return x;
+  }
+
+  set(v : int<4>) : void
+  {
+    x = v;
+  }
+}
+
+class B : A
+{
+  set(v : int<4>) : void
+  {
+    x = 2*v;
+  }
+}

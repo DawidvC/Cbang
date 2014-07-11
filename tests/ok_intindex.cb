@@ -1,0 +1,12 @@
+// Accessing integer's bits
+// This test is a collective test not specific
+
+read(x : int<+32>) : int<+1>
+{
+  return x[0];
+}
+
+write(x : int<+32>*) : void
+{
+  (*x)[0] = 1;
+}

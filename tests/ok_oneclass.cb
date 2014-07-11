@@ -1,0 +1,15 @@
+/* One class example */
+
+class A
+{
+  init(_x: int<4>, _y: int<4>)
+  {
+      x = _x;
+      y = _y;
+      z = _x * _x + _y * _y;
+  }
+
+  x : int<4>;
+  y : int<4>;
+  z : int<4>;
+}

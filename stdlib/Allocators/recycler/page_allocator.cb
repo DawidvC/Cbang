@@ -1,0 +1,27 @@
+/*
+ * page_allocator: provide pages for other allocator
+ * this implem is just a wrapper around POSIX mmap
+ */
+
+include "stdlib.h";
+include "sys/mman.h";
+
+typedef off_t =  int<32>;
+
+PROT_NONE:int<32> as PROT_NONE;
+MAP_PRIVATE:int<32> as MAP_PRIVATE;
+MAP_ANON:int<32> as MAP_ANON;
+
+mmap(p: void*, len: size_t, prot: int<32>, flags: int<32>, fd: int<32>, off: off_t): void* as mmap;
+
+munmap(p : void*, len: size_t) : int<32> as munmap;
+
+get(len : size_t) : void*
+{
+  return mmap(NULL, len, PROT_NONE, MAP_PRIVATE|MAP_ANON,-1,0);
+}
+
+release(p : void*, len: size_t) : void
+{
+  munmap(p,len);
+}

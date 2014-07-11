@@ -1,0 +1,10 @@
+// Test for module importing
+
+// Use of a exported structure.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : import_module::point;
+}

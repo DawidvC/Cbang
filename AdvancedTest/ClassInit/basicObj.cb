@@ -1,0 +1,13 @@
+class basicObj::myClass
+{
+    init()
+    {
+        field = 1;
+    }
+
+    field : int<32>;
+
+    method() : void
+    {
+    }
+}

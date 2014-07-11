@@ -1,0 +1,24 @@
+/* Validating call for supported interface */
+
+interface I {
+  get() : int<32>;
+  set(x : int<32>) : void;
+}
+
+class A support I {
+  content : int<32>;
+  get() : int<32> { return content; }
+  set(x : int<32>) : void { content = x; }
+}
+
+f(x : I) : void
+{
+  x.set(42);
+}
+
+main() : int<32>
+{
+  x := local A();
+  f(x);
+  return 0;
+}

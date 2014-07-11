@@ -1,0 +1,52 @@
+// Simple module to import
+
+typedef myint = int<64>;
+typedef ssize_t = int<64>;
+
+struct point
+{
+    x : int<32>;
+    y : int<32>;
+    next : point*;
+}
+
+struct private_struct
+{
+    field : int<16>;
+    next : private_struct*;
+}
+
+enum file_mode
+{
+    `READ;
+    `WRITE;
+    `READ_AND_WRITE;
+}
+
+enum file_type
+{
+    `REGULAR;
+    `DIRECTORY;
+    `LINK;
+}
+
+identity(x : int<32>) : int<64>
+{
+    return x;
+}
+
+private_func() : void
+{
+    // Does nothing...
+}
+
+set_to_origin(p : point*) : void
+{
+    p->x = 0;
+    p->y = 0;
+    p->next = NULL;
+}
+
+func_struct_ns(p : point*) : void
+{
+}

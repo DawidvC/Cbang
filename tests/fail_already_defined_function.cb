@@ -1,0 +1,9 @@
+// Test for double definition of a function
+
+my_func(param : int<32>) : void
+{
+}
+
+my_func(param : int<32>) : void
+{
+}

@@ -1,0 +1,10 @@
+/*
+ * A simple allocator.
+ * use libC's malloc
+ */
+
+include "stdlib.h";
+
+malloc(s : size_t) : void* as malloc;
+free(p : void*) : void* as free;
+

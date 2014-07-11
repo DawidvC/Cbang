@@ -1,0 +1,9 @@
+// Test for module importing
+
+// Just use the import statement.
+
+import import_module;
+
+import_main() : void
+{
+}

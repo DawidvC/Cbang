@@ -1,0 +1,12 @@
+class Useless
+{
+    i : int<+64> = 0;
+}
+
+my_test() : int<+64>
+{
+    result : int<+64> = 0;
+    for (useless : local Useless; useless.i < 10; ++useless.i)
+        result += 1;
+    return result;
+}

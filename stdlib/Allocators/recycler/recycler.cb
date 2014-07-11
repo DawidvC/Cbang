@@ -1,0 +1,78 @@
+/*
+ * recycler: simple memory allocator for fixed size cells
+ * suppose the existance of a page allocator
+ */
+
+import page_allocator;
+import simple_allocator;
+
+typedef cell = s_cell*;
+
+struct s_cell
+{
+  ptr: void*;
+  next: cell;
+}
+
+class recycler
+{
+  init(m: size_t, s: size_t)
+  {
+    data = page_allocator::get(m * s);
+    max = m;
+    cur = 0;
+    free = NULL;
+    cell_size = s;
+  }
+
+  del()
+  {
+    page_allocator::release(data, max * cell_size);
+  }
+
+  data: char*;
+  max : size_t;
+  cur : size_t;
+  cell_size : size_t;
+  free : cell;
+
+  get() : void*
+  {
+    p : void* = NULL;
+    if (free)
+      {
+        p = free;
+        free = free->next;
+      }
+    else
+      {
+        if (cur/cell_size <= max)
+          {
+            p = data + cur;
+            cur += cell_size;
+          }
+      }
+    return p;
+  }
+
+  release(p : void*) : void
+  {
+    c : cell = p;
+    c->next = free;
+    free = c;
+  }
+
+  reset() : void
+  {
+    cur = 0;
+    free = NULL;
+  }
+
+}
+
+main() : int<32>
+{
+  rec: recycler;
+  rec = recycler(simple_allocator::malloc(sizeof (recycler)),512,16);
+  return 0;
+}

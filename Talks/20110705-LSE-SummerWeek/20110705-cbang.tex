@@ -1,0 +1,705 @@
+%% 20110705-cbang.tex : cbang presentation for LSE Summer week 2011
+%% Authors: Marwan Burelle
+%% First Created: 2011-06-29
+\documentclass[pdftex]{beamer}
+
+\mode<presentation>
+{
+  \usetheme{LSE}
+}
+\usepackage{moreverb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{txfonts}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{calrsfs}
+\usepackage{alltt}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows,snakes,backgrounds,shapes}
+\usetikzlibrary{trees}
+
+\title{{C!}}
+\subtitle{A System Oriented Programming Language}
+
+\author{Marwan Burelle}
+
+\institute{
+  marwan.burelle@lse.epita.fr\\
+  \url{http://www.lse.epita.fr/}
+}
+
+\date{}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{\insertsection}
+    \begin{beamerboxesrounded}{}
+      \begin{center}
+        \huge{\bf \insertsection}
+      \end{center}
+    \end{beamerboxesrounded}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{\insertsubsection}
+    \begin{beamerboxesrounded}{}
+      \begin{center}
+        \textbf{\insertsubsection}
+      \end{center}
+    \end{beamerboxesrounded}
+  \end{frame}
+}
+
+
+\definecolorset{cmyk}{}{}%
+ {olive,0,0,1,.5}
+
+\setbeamercolor{bExample}{fg=black,bg=olive}
+\newenvironment{BoxedExample}
+{\begin{beamerboxesrounded}[upper=bExample, shadow=true]{Example:}}
+  {\end{beamerboxesrounded}}
+
+\newenvironment{BoxedSyntax}[1]
+{\begin{beamerboxesrounded}[shadow=true]{#1}}
+  {\end{beamerboxesrounded}}
+
+\newenvironment{BoxedDefinition}[1]
+{\begin{beamerboxesrounded}[shadow=true]{#1}}
+  {\end{beamerboxesrounded}}
+
+\newcommand{\DefBackButton}[2]{\hfil\hyperlink{#1<#2>}{\beamerreturnbutton{back}}}
+
+\setbeamercolor{CamlRep}{fg=olive}
+\newcommand{\CamlRep}[1]{{\usebeamercolor[fg]{CamlRep}\emph{\texttt{#1}}}}
+
+\setbeamercolor{PosYes}{fg=green}
+\newcommand{\yes}[1]{{\usebeamercolor[fg]{PosYes} #1}}
+
+\newcommand{\tsetin}[1]{\texttt{IN}(#1)}
+\newcommand{\tsetout}[1]{\texttt{OUT}(#1)}
+\newcommand{\tclose}[1]{#1_{\mathcal{C}}}
+\newcommand{\CS}{{\color{red}CS}}
+
+\begin{document}
+
+\definecolor{orange}{rgb}{1,0.3,0}
+\definecolor{kword}{rgb}{0.8,0.5,0}
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily,
+  commentstyle=\color{orange},
+  keywordstyle=\color{kword}\bfseries,
+  stringstyle=\color{red},
+  showstringspaces=false,
+  identifierstyle=,
+%  emph={Array,Printf,List,Map,Hashtbl,Sys,Stream,Env},
+%  emphstyle=\color{blue}\bfseries,
+}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}<beamer>
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+
+
+\section{Introduction}
+
+\begin{frame}
+  \frametitle{Kernel Programming?}
+  \emph{What do we use in kernel programming?}
+  \begin{itemize}
+  \item Low-level code:
+    \begin{itemize}
+    \item Direct memory access (reading/writing to in-memory registers
+      and other adress-based data access);
+    \item Architecture-specific code (ASM inlining);
+    \item Low-level execution flow manipulation.
+    \end{itemize}
+  \item More classical code:
+    \begin{itemize}
+    \item Data structures;
+    \item Algorithms.
+    \end{itemize}
+  \item Control over binary building.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Languages for Kernel Programming?}
+  \emph{Programming in kernel space requires some features in the
+    language and its toolchain.}
+  \begin{itemize}
+  \item Address manipulation (pointers\ldots);
+  \item Function pointers;
+  \item Transparent memory mapping of data structures;
+  \item Interface with lower-level code (ASM inlining\ldots);
+  \item Bitwise operations;
+  \item Control over the linking and how the output binary is produced;
+  \item Very small or inexistant runtime dependencies.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Only C?}
+  \begin{itemize}
+  \item Why not a \emph{High Level Language}:
+    \begin{itemize}
+    \item Most of the modern languages are oriented towards userland
+      applications;
+    \item \emph{High level languages} (such as Java) often rely on
+      specific runtime or worse (Java programs runs on a Virtual
+      Machine);
+    \item \emph{High level languages} often forbid low level
+      manipulations;
+    \item Even languages such as C++ or Google's Go requires a
+      specific runtime (Go uses a garbage collector, has specific
+      calling conventions and various userland only native features)
+      incompatible with kernel programming, or at least difficult to
+      adapt.
+    \end{itemize}
+  \item And C?
+    \begin{itemize}
+    \item C was meant to code kernel!
+    \item Produced code is almost a direct translation of the original
+      source code;
+    \item Most of the current C compilers offer ASM inlining.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Issues with The C Programming Language}
+  \centering{\textbf{\emph{Why would we need another language?}}}
+
+  \ \\
+
+  \begin{itemize}
+  \item The official C (ISO) is complex and full of \emph{``things
+      that used to be that way and won't change''};
+  \item The language has some odd or ambiguous syntax;
+  \item The type system of the language is too permissive on some
+    subjects while being too restrictive on others;
+  \item The language lacks modern programming idioms (like
+    objects) that can be useful;
+  \item Some features of the language are outdated and do not fit
+    well in today's context (\emph{what is the size of an \texttt{int}?
+    what really does the keyword \texttt{register}? \ldots}).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{C!}
+  \begin{itemize}
+  \item {C!} (pronounced \emph{c-bang}) is our attempt to have a new
+    programming language for kernel and low-level programming;
+  \item Our main goals were:
+    \begin{itemize}
+    \item Rationalization of the C language syntax;
+    \item Minor but useful extensions (mainly syntactic sugar);
+    \item Attempting for a better type system (with possibly some
+      extensions such as \emph{Generics});
+    \item Simple but usable objects;
+    \item Language idioms dedicated to kernel/low-level;
+      programming
+    \item Introducing a module formalism (redundant header files, namespaces, \ldots);
+    \item Keeping what makes C a good language for kernel.
+    \end{itemize}
+  \item Currently C! is more a proof of concept rather than a production
+    language, but the compiler prototype can already be used;
+  \item Most of our goals are (at least partially) achieved.
+  \end{itemize}
+\end{frame}
+
+
+
+\section{Global Language Overview}
+
+% \begin{frame}
+%   \frametitle{Compiler to Compiler}
+%   \begin{itemize}
+%     \item To fit the language needs (kernel programming, C ABI compatibility,
+%       \ldots), there are several options:
+%       \begin{itemize}
+%       \item write a complete compiler suite: the front-end, the middle-end, and
+%         as many back-ends as targetted architectures: too complex and too long
+%         for an experimental language;
+%       \item yield a front-end for LLVM, for instance: more simple, but still
+%         overkill for an experiment;
+%       \item make a compiler that outputs C code: enables one to think as ``how
+%         it should work'' in C terms, which is quite handy.
+%       \end{itemize}
+%     \item Of course, the future of the language is not restricted to current
+%       choices.
+%     \item The current compiler is implemented in OCaml. This compiler is meant
+%       to bootstrap a C! compiler in C! (self-hosting).
+%   \end{itemize}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{Compiler to Compiler}
+  \begin{itemize}
+  \item We chose to use a Compiler to Compiler model;
+  \item The C! compiler produces C code that can be compiled using an
+    almost standard C compiler (we use C99 and GNU C features);
+  \item Why Compiler to Compiler?
+    \begin{itemize}
+    \item Hard work on native code producing is obtaind for \emph{free};
+    \item Most C! specific features are syntaxic sugar over pure C;
+    \item Advanced features like object can directly be expressed in C;
+    \item The C programming language can be seen as high level portable ASM;
+    \item It enforces our idea of a new native general purpose system
+      programming language: a strong low level base and non-intrusive
+      higher level extensions.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Syntax Rational}
+  \begin{itemize}
+  \item The basic idea of C! is to globaly preserve C syntax with rational
+    modifications;
+  \item The first important point was to design the general syntax in a
+    way that can be expressed using a standard parser generator (like
+    yacc);
+  \item Modifications to the original syntax should be globaly coherent;
+  \item The main difference is unambigous \emph{typenames}: type
+    identifiers must be identified syntactically: we do not want lexing
+    trick!
+  \item Modifications on the syntaxic localization of type identifiers
+    completely modifies variable and function declarations (and thus
+    structures' fields are also modified);
+  \item Other syntax differencies are syntaxic sugar and pure C!
+    extensions (objects, macro-class, \ldots);
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Integer Rational}
+  \begin{itemize}
+  \item In C integer types are loosely defined, the \texttt{int} type
+    obeys two contradictory definitions:
+    \begin{itemize}
+    \item \texttt{int} type should be of the size of the machine word;
+    \item \texttt{int} type should be 2 or 4 bytes (16 or 32 bits) long.
+    \end{itemize}
+  \item Some others types have a fixed size (\texttt{char},
+    \texttt{short}, \ldots) and other are machine dependant
+    (\texttt{size\_t} \ldots);
+  \item C99 introduces sized types but these definitions are
+    \emph{fixed} (\emph{i.e.} the standard defines a fixed set of
+    types not a way to define integer type by its size);
+  \item We directly introduce size (and signedness) in type
+    declaration: a 32 bits signed integer will decalared as
+    \verb|int<32>| and the unsigned version as \verb|int<+32>|;
+  \item For homogeneity we use a similar scheme for floating point numbers;
+  \item Integer with unusal size (less than 64 bits) can also be
+    expressed, they will be stored in usual integer and we introduce
+    management code to handle overflow.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Minor Extensions}
+  \begin{itemize}
+  \item Structure definitions are type defitions (no need to use the
+    \emph{struct} keywords);
+  \item Unsigned integers can be used as bit arrays;
+  \item Bitfields are natural extension of sized integer definitions;
+  \item Packing of structures is a language feature;
+  \item Smarter attempt to handle enumeration's identifier conflict (a
+    local variable can't hide an enum value);
+  \item Several \emph{work in progress} for eliminating unused (or
+    badly named) variable qualifiers;
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Objects}
+  \begin{itemize}
+  \item C! has a simple object oriented syntax extension;
+  \item The object extensions is provided for convenience, it is not a
+    major paradigm in C!;
+  \item One should use objects to simplify data structuring, not code
+    structuring;
+  \item This extension is build as a syntaxic sugar over
+    \emph{hand-made} objects in C;
+  \item We have simple inheritance, only virtual methods and method
+    overriding (but not overloading);
+  \item For unambigous manipulations, objects are always pointers (no
+    implicit copy mechanism);
+  \item Construction is classical but memory allocation is up to the
+    programmer (the constructor take a pointer as first parameter);
+  \item Object obey to a single syntax (only \verb|obj.method()| and
+    no horrible \verb|obj->method()|);
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Modules}
+  We introduce a simple \emph{modules model} to avoid naming ambiguity
+  in multiple files compilation:
+  \begin{itemize}
+  \item Symbols and type names are isolated between modules using
+    (simplified) namespaces;
+  \item Symbols and type names are exported specifiying a namespace:
+    \begin{itemize}
+    \item \verb#global_variable : int<32>;# won't be exported;
+    \item \verb#my_module::global_variable : int<32>;# will be exported.
+    \end{itemize}
+  \item A module can use another module's exported resources the
+    \texttt{import} statement: \verb#import my_module;#;
+  \item The backend to C uses mangling to avoid name conflicts between modules
+    during the linking;
+  \item Unlike in C, a module M2 cannot use a module M3's resources without
+    importing it even if both are used by a module M1 (this error is detected
+    with splitted compilation).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Other Extensions}
+  \begin{itemize}
+  \item C! offers a concept of \emph{macro class}: object oriented
+    like syntax for operations call on non-object types;
+  \item Various attempts for \emph{external code} inlining (asm or
+    pure C) are \emph{(still work in progress)};
+  \item Genrated C code is (or we hope it is) supposed to be human-readable and
+    directly usable by a C programmer (simpler integration in existing code
+    base);
+  \item Some newer syntax (still in design phase) will try to solve
+    classical low level issue such as automation of register like
+    (adress based) data structures.
+  \item We also try to have a better type system (there's still some
+    issues);
+  \end{itemize}
+\end{frame}
+
+
+
+\section{Syntax and Sugar}
+
+\begin{frame}[fragile]
+  \frametitle{Syntax Rational: type position}
+  \begin{itemize}
+  \item The main C's grammar issue is about type position:
+    \begin{center}\scriptsize
+      \verb#struct my_struct[5] *my_var;#
+      \hspace{0.3cm}$\rightarrow$\hspace{0.3cm}
+      \verb#my_var : my_struct[5] *;#
+    \end{center}
+  \item The former style forces to hack the lexer in order to memorize typedefs. The
+    last one introduces no ambiguity.
+  \item This syntax is used everytime one associates a type with a name:
+    \begin{itemize}
+      \item Parameters and return type in function declarations:
+        \begin{center}\scriptsize
+          \verb#double my_function(long prm1, float prm2);# \\
+          \hspace{0.3cm}$\downarrow$\hspace{0.3cm} \\
+          \verb#my_function(prm1 : int<32>, prm2: float<32>) : float<64>;# \\
+        \end{center}
+      \item Field declaration for boxed types (structures, classes, \ldots):
+        \begin{center}\scriptsize
+          \verb#struct my_struct { long field; … };# \\
+          \hspace{0.3cm}$\downarrow$\hspace{0.3cm} \\
+          \verb#struct my_struct { field : int<32>; … }# \\
+        \end{center}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Syntax Rational: pointer to function}
+
+  \begin{itemize}
+  \item Pointer to function types are made more readable:
+    \begin{center}\scriptsize
+      \verb#int (*my_func)(int, char *)# \\
+      \hspace{0.3cm}$\downarrow$\hspace{0.3cm} \\
+      \verb#my_func : <(int<32>, int<8> *)> : int#
+    \end{center}
+  \item Once more, the trick is to isolate the type and the identifier.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Syntax Rational: casting}
+
+  \begin{itemize}
+  \item In C, can you determine if \verb#(x)(y)# is:
+    \begin{itemize}
+      \item a cast of \texttt{y} to the \texttt{x} type, or…
+      \item a call of the function \texttt{x} with \texttt{y} as an argument?
+    \end{itemize}
+  \item Casts in C! obey the unambigous type identifier rules!
+    \begin{center}\scriptsize
+      \verb#string = (char *) my_ptr;# \\
+      \hspace{0.3cm}$\downarrow$\hspace{0.3cm} \\
+      \verb#string = (my_ptr : int<8> *);#
+    \end{center}
+  \item This syntax is coherent with previous changes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Syntax Rational: minor changes}
+
+  \begin{itemize}
+  \item Trailing \verb|';'| at the end of structure and class declarations is
+    no longer needed;
+  \item Function calls have a single syntax: a functional expression
+    (direct identifier, function pointer, array or structure element)
+    is applied to a vector of arguments;
+    % TODO: what is the other one in C?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Syntactic sugar: bit access}
+
+  \begin{itemize}
+  \item System code often deals with bit fields;
+  \item One can handle it playing with bitwise operations (masks, shifts,
+    \ldots); \item Or using bit fields in packed C's structures;
+  \item C! brings another possibility: use unsigned integer as a bit array:
+\begin{verbatim}
+switch_feature(flags : int<+32> *) : int<+32>
+{
+    (*flags)[3] = !(*flags)[3];
+    return (*flags)[3];
+}
+\end{verbatim}
+  \end{itemize}
+\end{frame}
+
+
+
+\section{Objects in C!}
+
+
+
+\begin{frame}
+  \frametitle{Object Model}
+  \begin{itemize}
+  \item Object in C! is a class-based OOP model
+  \item Intuitively, we design objects in C and then provide a
+    syntaxic sugar for C!
+  \item We choose to keep the object model as simple as we can
+  \item Basicaly we have:
+    \begin{itemize}
+    \item Usual class definintions
+    \item All object's code is in class definintion
+    \item Methods are \emph{virtual} (in C++ terminology)
+    \item There's no visibility control (everything is \emph{public})
+    \item Methods can be overriden but not overloaded
+    \item Objects creation is divided in two parts: allocation
+      (delegated to the programmer) and object initialization
+    \end{itemize}
+  \item We try to avoid most C++ annoying aspects: no implicit copy,
+    no syntax hell (object, reference, pointer ... ), no syntax noise.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Inner Representation}
+  \begin{itemize}
+  \item In C! objects are structures with special inner structure
+    containning function pointers:
+\begin{lstlisting}
+struct my_object {
+  // vtable
+  struct my_object_methods *_methods;
+  // attributes
+  int x,y;
+};
+
+struct my_object_methods {
+  int (*getX)(void);
+  int (*getY)(void);
+};
+\end{lstlisting}
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,fragile]
+  \frametitle{Objects Syntax}
+\begin{verbatim}
+class A {
+  x : int<32>;
+  get() : int<32> { return x; }
+  set(_x : int<32>) : void { x = _x; }
+  double() : void
+  {
+    this.set(2 * this.get());
+  }
+}
+
+class B {
+  x : A;
+  get() : A { return x; }
+}
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Objects Syntax}
+  \begin{itemize}
+  \item The syntax embeds all the cooking for objects manipulation in
+    C:
+    \begin{itemize}
+    \item Method call such as \verb|a.get()| will be rewritten as
+      \verb|a->_methods->get(a)|
+    \item Cascading methods call is managed using compound expressions
+      and temporary local variables: the call
+      \verb|b.get().set(42)| will be translated as:
+\begin{lstlisting}
+({
+   A _cbtmp1 = b->_methods->get(b);
+   _cbtmp1->_methods->set(_cbtmp1, 42) ;
+})
+\end{lstlisting}
+    \item Actual constructors are build using class variables (class
+      definition can take parameters) visible only at creation time.
+    \item The constructor always take as first a pointer to a suitable
+      memory location to store the object (of type \verb|void*| to
+      avoid typing issues.)
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+
+\section{The Macro Class Concept}
+
+\begin{frame}
+  \frametitle{Macro Class ?}
+  \begin{itemize}
+  \item The idea is to provide an object like syntax to manipulate
+    non-object data.
+  \item When defining a macro-class we give a base type (the storage
+    type) and a set of \emph{operations}.
+  \item A fake \emph{this} is available in operations code, it
+    represents the inner value
+  \item operations can be \emph{const} (no modifications to the inner
+    value) or not.
+  \item Normally methods calls on macro-class are replace by C macro.
+  \item Macro-class are a simple syntax extensions to handle typed
+    macro over specific data.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Macro class usage}
+  \begin{itemize}
+  \item Macro class can be used where object-oriented syntax are
+    convenien but full-object implementation is useless.
+  \item A classical example is evolved integer flags such as status
+    return of a \texttt{wait} syscall. One can define setting and
+    testing of various properties of the status as method call that in
+    fact will implement the usual macro.
+  \item The purpose is to provide convenient syntax for low level
+    behaviour code (for exemple, it will possible to include assembly
+    code in a macro operations) without any overhead or runtime code.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,fragile]
+  \frametitle{Example}
+  \footnotesize
+\begin{verbatim}
+macro class MC : int<+32>
+{
+  get() const : int<+32>
+  {
+    return (this * 2);
+  }
+
+  set(x : int<+32>) : void
+  {
+    this = x/2;
+  }
+}
+
+f() : void
+{
+  x : MC;
+  // x is really an int<+32>
+  x = 0;
+  // but it can be used like an object
+  x.set(42);
+}
+\end{verbatim}
+\end{frame}
+
+\section{State of The Prototype}
+
+\begin{frame}
+  \frametitle{State of The Prototype}
+
+  \pause
+
+  \begin{itemize}
+    \item Lexing/Parsing : check; \pause
+    \item Type checking : check, even if a few improvements are scheduled;
+      \pause
+    \item Module support: very partial… but coming soon! (the identifiers
+    mangling is still to be decided) \pause
+    \item Object support: check; \pause
+    \item Macro class support: partial; \pause
+    \item Stay tuned!
+  \end{itemize}
+\end{frame}
+
+
+
+\section{Future Directions}
+
+\begin{frame}
+  \frametitle{Work in progress}
+  \begin{itemize}
+  \item Finish and fix work in the compiler
+  \item Fix syntax for inlining
+  \item Fix the object constructor troll
+  \item Solve various typing issues
+  \item Find a better way to implement class macro ops (inlined
+    functions ?)
+  \item Have a tool chain ...
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Future Works ?}
+  \begin{itemize}
+  \item Data mapping: automatic access to register like data
+  \item Method Overloading
+  \item Plugin and annotation (external processing of code)
+  \item Generics and/or Template
+  \item Global static constructions
+  \item Native compiler (does-it make sense ?)
+  \item Self-host (C! in C!)
+  \item Front-end integration in gcc/clang
+  \item Code validation and static checking
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{QUESTIONS ?}
+  \begin{center}
+    \includegraphics[width=8cm]{Figs/questionMark}
+  \end{center}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,17 @@
+// CB: macro function
+
+#square(x : int<32>) : int<32>
+{
+  return x * x;
+}
+
+
+main() : int<32>
+{
+  x : int<32> = 4;
+  y : int<32>;
+
+  y = square(square(x));
+
+  return 0;
+}

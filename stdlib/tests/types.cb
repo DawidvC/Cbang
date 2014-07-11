@@ -1,0 +1,23 @@
+/* std: testing */
+/* Checking types defs */
+
+/* Just declare a list of vars */
+
+a : cint;
+b : ucint;
+c : short;
+d : ushort;
+e : byte;
+f : ubyte;
+g : long;
+h : ulong;
+
+i : word;
+j : uword;
+k : size;
+l : size_t;
+
+main(): cint // use the C integer
+{
+  return 0;
+}

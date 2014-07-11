@@ -1,0 +1,20 @@
+/* std: testing */
+/* Checking constants */
+
+// ugly for printing
+include "stdio.h";
+print_cint(s : char*, i : cint) : void as printf;
+print_ucint(s : char*, i : ucint) : void as printf;
+print_size(s : char*, i : size) : void as printf;
+print_int64(s : char*, i : int<64>) : void as printf;
+
+main() : cint
+{
+  print_cint("max_cint = %d\n",max_cint);
+  print_cint("min_cint = %d\n",max_cint);
+  print_ucint("max_ucint = %lld\n",max_ucint);
+  print_size("max_size = %zu\n",max_size);
+  print_int64("max_int64 = %jd\n",max_int64);
+
+  return 0;
+}

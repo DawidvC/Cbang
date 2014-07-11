@@ -1,0 +1,28 @@
+/* Simple interface test */
+/* overlap in declared methods */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface getable
+{
+  get() : void*;
+}
+
+class A support box getable
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  get() : void*
+  {
+    return content;
+  }
+
+}

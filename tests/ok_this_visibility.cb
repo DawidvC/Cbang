@@ -1,0 +1,9 @@
+class Root
+{
+    init (fd : int<+32>)
+    {
+        this.fd = fd;
+    }
+
+    fd : int<+32>;
+}

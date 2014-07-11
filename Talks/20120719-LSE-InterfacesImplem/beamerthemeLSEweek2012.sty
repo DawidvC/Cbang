@@ -1,0 +1,66 @@
+%% Beamer style for LSE slides
+%% (c) 2012 Marwan Burelle and LSE
+%% This code is under DWTFYW licence: Do What The Fuck You Want with it
+%% although it would be nice to respect authors
+
+\DeclareOptionBeamer{hideothersubsections}{\PassOptionsToPackage{hideothersubsections}{beamerouterthemesidebar}}
+\DeclareOptionBeamer{hideallsubsections}{\PassOptionsToPackage{hideallsubsections}{beamerouterthemesidebar}}
+
+\PassOptionsToPackage{right}{beamerouterthemesidebar}
+\PassOptionsToPackage{width=2cm}{beamerouterthemesidebar}
+
+\DeclareOptionBeamer{width}{\PassOptionsToPackage{width=#1}{beamerouterthemesidebar}}
+\DeclareOptionBeamer{left}{\PassOptionsToPackage{left}{beamerouterthemesidebar}}
+\DeclareOptionBeamer{right}{\PassOptionsToPackage{right}{beamerouterthemesidebar}}
+
+\ProcessOptionsBeamer
+
+\mode<presentation>
+
+\pgfdeclareimage[width=1cm]{LogoLSE}{img/LogoLSE-epita-tr}
+\logo{\pgfuseimage{LogoLSE}}
+\useinnertheme{rounded}
+\setbeamercovered{dynamic}
+\usefonttheme{serif}
+
+%% Swap the following lines if you want complete TOC in sidebar
+%% \useoutertheme[height=0pt]{sidebar}
+\useoutertheme[height=0.8cm,hideothersubsections]{sidebar}
+
+%% Colors
+\usecolortheme{dolphin}
+\usecolortheme{sidebartab}
+\setbeamercolor{frametitle}{fg=white}
+
+%% Controlling what happens when entering a section
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Plan}
+    \tableofcontents[sectionstyle=show/hide,subsectionstyle=show/show/hide]
+  \end{frame}
+}
+
+%% Some block defs
+\definecolorset{cmyk}{}{}%
+ {olive,0,0,1,.5}
+
+\definecolor{lightgrey}{rgb}{0.9,0.9,0.9}
+\definecolor{bluegrey}{rgb}{0.5,0.7,0.9}
+\definecolor{orange}{rgb}{1,0.3,0}
+\definecolor{kword}{rgb}{0.4,0.3,0}
+
+\setbeamercolor{bExample}{fg=black,bg=bluegrey}
+\newenvironment{BoxedExample}
+{\begin{beamerboxesrounded}[upper=bExample, shadow=true]{Example:}}
+  {\end{beamerboxesrounded}}
+
+\newenvironment{BoxedSyntax}[1]
+{\begin{beamerboxesrounded}[shadow=true]{#1}}
+  {\end{beamerboxesrounded}}
+
+\setbeamercolor{block title}{parent=palette secondary, use=palette secondary, bg=palette secondary.bg!85!black, fg=white}
+\setbeamercolor{block body}{bg=lightgrey}
+
+\mode
+<all>

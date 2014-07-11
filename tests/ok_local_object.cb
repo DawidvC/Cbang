@@ -1,0 +1,15 @@
+class Useless
+{
+    magic : char;
+
+    get_one() : int<64>
+    {
+        return 1;
+    }
+}
+
+my_test() : int<64>
+{
+    useless := local Useless();
+    return useless.get_one();
+}

@@ -1,0 +1,11 @@
+// Third module to import for cross-module testing
+// This one try to use an exported type without importing the corresponding
+// module
+
+module_C::wrong_type_use() : int<32>
+{
+    wrong_use : module_A::my_box;
+    wrong_use.value1 = 192;
+    wrong_use.value2 = 2.718;
+    return wrong_use.value1;
+}

@@ -1,0 +1,24 @@
+/* Simple interface test */
+/* fail: wrong type for method */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+class A support box
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  get(x : int<32>) : void*
+  {
+    x = x;
+    return content;
+  }
+
+}

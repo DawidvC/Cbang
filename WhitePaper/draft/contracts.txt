@@ -1,0 +1,42 @@
+Contrats et assertions
+======================
+
+assert ( expression )
+assert ( expression , message )
+
+static assert ( expression )
+static assert ( expression , message )
+
+l'ajout de ces syntaxe permet d'avoir des assertion au niveau du langage.
+
+Interet :
+  * pouvoir faire le check des expression pour eviter qu'elles aient un
+    effet de bord
+  * les desactiver facilement
+  * il n'y a pas de preprocesseur pour les definir
+
+Par contre, les assert necessitent un petit botu de runtime, il faut pouvoir
+redefinir ces elements facilement.
+
+Contrats
+--------
+
+Les contrats de D sont bien, il serai bien de les incorporer a C!.
+
+Il consistent en 3 blocks `in`, `out` et `invariant`.
+
+`in` et `out` s'appliquent a une fonction (et demandent que le block de la
+fonction soit noté avec `body`).
+
+`invariant` s'applique a une classe.
+
+Ces blocs contiennent du code qui sera appelle avant, et apres l'appel d'une
+fonction pour tester les pre et post conditions d'une fonctions, et verifier
+qu'elle se comporte bien selon la specification.
+
+De la meme maniere, `invariant` permet de verifier l'integritée d'un objet a
+chaque fois qu'une fonction publique est appellée.
+
+Contrairement au D, il n'y a pas besoin d'avoir un mot clef unittest, car la
+couche objet de C! n'introduit pas de notion de visibilité, tout est publique,
+il n'y a donc pas de soucis poru definir les tests de maniere externe.

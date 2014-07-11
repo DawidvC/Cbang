@@ -1,0 +1,6 @@
+// Entry point test - no params
+
+main() : int<32>
+{
+  return 0;
+}

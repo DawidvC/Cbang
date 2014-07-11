@@ -1,0 +1,14 @@
+struct a
+{
+  x : int<4>;
+}
+
+foo1(ptr : a*) : int<4>
+{
+  return (*ptr).x;
+}
+
+foo(ptr : a*) : int<4>
+{
+  return ptr->x;
+}

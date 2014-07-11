@@ -1,0 +1,4 @@
+// Fourth module to import for cross-module testing
+// This one just exports a symbol
+
+global_var : int<32> = 42;

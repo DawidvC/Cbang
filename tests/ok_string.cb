@@ -1,0 +1,8 @@
+// Test for string handling.
+
+test() : void
+{
+    my_str1 : int<8>* = "Hello world!";
+    my_str2 : int<8>* = "\\";
+    my_str3 : int<8>* = "\n";
+}

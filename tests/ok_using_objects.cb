@@ -1,0 +1,9 @@
+class A
+{
+	a : int<64>;
+}
+
+foo(obj : A) : int<64>
+{
+	return obj.a;
+}

@@ -1,0 +1,5 @@
+#TEST_MACRO : int<+32> = 42;
+
+class Test {
+    test : char[TEST_MACRO];
+}

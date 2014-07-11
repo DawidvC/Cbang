@@ -1,0 +1,11 @@
+class Useless
+{
+    magic : char;
+
+    get_one() : int<64>
+    {
+        return 1;
+    }
+}
+
+useless : local Useless;

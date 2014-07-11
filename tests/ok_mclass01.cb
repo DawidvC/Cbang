@@ -1,0 +1,18 @@
+macro class MC : int<+32>
+{
+  get() const : int<+32>
+  {
+    return (this * 2);
+  }
+
+  set(x : int<+32>) : void
+  {
+    this = x/2;
+  }
+}
+
+f() : void
+{
+  x : MC = 0;
+  x.set(42);
+}

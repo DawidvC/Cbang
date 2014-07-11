@@ -1,0 +1,28 @@
+/* Testing transitive inheritance cast */
+
+interface A {
+  get_int() : cint;
+}
+
+interface B : A {
+  get_float() : float<32>;
+}
+
+class C support B {
+  get_int() : cint { return 42; }
+  get_float() : float<32> { return 3.14; }
+}
+
+f1(o : A) : cint { return o.get_int(); }
+
+f2(o : B) : cint { return f1(o); }
+
+f3(o : C) : cint { return f2(o); }
+
+main() : cint
+{
+  o := local C();
+  x : cint;
+  x = f3(o);
+  return 0;
+}

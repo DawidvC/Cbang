@@ -1,0 +1,4 @@
+// Test for double definition of a variable
+
+my_var : int<32>;
+my_var : int<32> = 0;

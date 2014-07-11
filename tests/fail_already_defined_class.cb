@@ -1,0 +1,15 @@
+// Test for double declarations of a class
+
+class A
+{
+    my_meth() : void
+    {
+    }
+}
+
+class A
+{
+    other_one() : void
+    {
+    }
+}

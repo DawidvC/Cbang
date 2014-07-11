@@ -1,0 +1,11 @@
+// Test for module importing
+
+// Use of a unexported function.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : int<32>;
+    private_func();
+}

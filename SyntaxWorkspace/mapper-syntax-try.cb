@@ -1,0 +1,24 @@
+/* mapper syntax try */
+
+map M : void* {
+  property [T](off : int<+32>) {
+    get {
+      return *(((this: char*) + off) : T);
+    }
+    set (x : T) {
+      *(((this: char*) + off) : T) = x;
+    }
+
+    R1(0) : int<32>;
+    R2(4) : char;
+  }
+}
+
+f() : void
+{
+  m : M = 0x42;
+  m.R1 = 21;            // Call property setter
+  m.R2 = 'a';           // Call property setter
+  m.R1 = m.R1 * 2;      // Call property getter
+  m.R2 = m.R2 + 1;      // Call property getter
+}

@@ -1,0 +1,9 @@
+// Using an exported enumarate value of another module
+
+import import_module;
+
+import_mail() : void
+{
+    file_mode : import_module::file_mode;
+    file_mode = `READ;
+}

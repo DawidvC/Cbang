@@ -1,0 +1,16 @@
+= C! Tools/Wrappers =
+
+This directory contains .cbi files describing wrappers for some usual
+functions from standard C library.
+
+Contents:
+
+- libc_alloc.cbi : malloc familly functions
+- libc_assert.cbi : assert function
+- libc_minimal_IO.cbi : quick wrappers for open/close and read/write
+
+Test Files:
+
+The directory include some test files for each wrapper. They are intended to
+test if the wrapping is correct, the generated binaries may fail at execution on
+purpose (the assert-test binary for example contains a false assertion.)

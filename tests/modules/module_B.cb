@@ -1,0 +1,8 @@
+// Second module to import for cross-module testing
+// This one try to use an exported symbol without importing the corresponding
+// module
+
+module_B::cross_module_use() : int<32>
+{
+    return module_A::my_function();
+}

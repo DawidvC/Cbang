@@ -1,0 +1,37 @@
+// Basic C! object
+
+class A
+{
+  v : int<32>;
+
+  getV() : int<4>
+  {
+    return v;
+  }
+
+  setV(x : int<32>) : int<32>
+  {
+    return v = x;
+  }
+
+}
+
+class B : A
+{
+
+  getSimple() : int<32>
+  {
+    return v/2;
+  }
+
+  setV(x : int<32>) : int<32>
+  {
+    return v = 2*x;
+  }
+
+  zgetToto() : int<32>
+  {
+    return 42;
+  }
+
+}

@@ -1,0 +1,14 @@
+typedef TestTypename = int<+32>;
+
+class TestClass
+{
+  foo : int<+32>;
+}
+
+main() : int<32>
+{
+  foo1 : char[sizeof (TestTypename)];
+  foo2 : char[sizeof (TestClass)];
+
+  return 0;
+}

@@ -1,0 +1,9 @@
+class A
+{
+  foo() : void { }
+
+  bar() : void
+  {
+    foo();
+  }
+}

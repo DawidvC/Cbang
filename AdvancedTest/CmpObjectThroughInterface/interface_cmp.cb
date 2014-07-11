@@ -1,0 +1,50 @@
+// Comparing interface objects
+
+include "assert.h";
+include "stdlib.h";
+
+assert(x : int<32>) : int<+1> as assert;
+
+malloc(s : int<+32>) : void* as malloc;
+
+interface I
+{
+  get() : int<32>;
+}
+
+interface I2
+{
+  nop(): void;
+}
+
+class MyClass support I I2
+{
+  content : int<32>;
+  init(x : int<32>)
+  { content = x; }
+
+  get() : int<32> { return content; }
+  nop() : void {}
+}
+
+f(a : I, b : MyClass) : int<32>
+{
+  return a == b;
+}
+
+
+f2(o1 : I, o2 : I2) : int<32>
+{
+  return o1 == o2;
+}
+
+main() : int<32>
+{
+  a : MyClass = MyClass(malloc(sizeof (MyClass)), 42);
+  b : MyClass = MyClass(malloc(sizeof (MyClass)), 42);
+  assert(f(a,a));
+  assert(f(b,b));
+  assert(f2(a,a));
+  assert(!f(a,b));
+  return 0;
+}

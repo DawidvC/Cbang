@@ -1,0 +1,11 @@
+// Test for double declarations of an attribute
+
+class A
+{
+    my_attr : int<32>;
+    my_attr : int<32>;
+
+    my_meth() : void
+    {
+    }
+}

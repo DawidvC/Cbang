@@ -1,0 +1,11 @@
+// Test for symbol visibility
+
+// Using a symbol with the form namespace::symbol must work
+
+facto(n : int<+32>) : int<+32>
+{
+    if (n <= 1)
+        return 1;
+    else
+        return n * ok_use_unexported_symbol_inside::facto(n - 1);
+}

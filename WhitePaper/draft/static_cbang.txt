@@ -1,0 +1,49 @@
+Static C!
+=========
+
+Cette partie du langage traite des extensions a ajouter a C! pour tout ce qui
+est relatif aux evaluation constantes et compilation conditionnelle.
+
+Constantes
+----------
+
+Pour definir des constantes, le plus simple, pour ne pas introduire de nouvelle
+syntaxe, est d'utiliser les enums.
+
+Les enums sont deja des noms associes a des valeurs non assignable, et non
+addressable.
+
+Par contre, Il faut pouvoir avoir un implicit cast d'un enum vers un type
+entier. De plus, il faut pouvoir decrire des enums types et modifier un peu
+la syntaxe des enums pour qu'ils permettent de definir une constante unique
+facilement.
+
+C'est au final assez moche, et ca ressemble beaucoup au D.
+
+Static if
+---------
+
+Un simple `static if` permet de faire tout ce que fait cpp en plus des simples
+definition de macros, la seule chose qui manque, c'est un switch selon
+l'architecture.
+
+Qu'est-ce qui est autorise dans une expression constante ?
+----------------------------------------------------------
+
+* les literaux
+* constantes
+* enums
+* operateurs ne manipulant pas la memoire (a discuter)
+* appel a des macros C si il existe un moyen de les importer.
+
+Comment pouvoir utiliser des macros top-level ?
+-----------------------------------------------
+
+Par exemple, les macros du C peuvent etre utilisees a tout niveau dans un
+fichier. (voir les drivers linux comme exemple)
+
+Comment regler ce probleme, et surtout est-ce qu'il faut le regler ?
+
+A choisir, etablir une syntaxe pour definir des macros de ce genre, et
+ensuite les utiliser, c'est surement beaucoup plus complexe que simplement
+faire du C sur les endroits ou c'est obligatoire.

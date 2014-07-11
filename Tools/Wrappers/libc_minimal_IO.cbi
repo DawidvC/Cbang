@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2010-2012, Marwan Burelle, the LSE Team and contributors
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the <organization> nor the
+ *     names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL MARWAN BURELLE BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+
+/* Wrapper for a minimal set of functions for IOs */
+
+include "stdlib.h", "unistd.h", "fcntl.h";
+
+// The open(2) syscall with mandatory permissions
+open(path : const char*, flags : cint, perm : cint) : cint as open;
+
+// Open's flags
+O_ACCMODE       : cint as O_ACCMODE;
+O_APPEND        : cint as O_APPEND;
+O_ASYNC         : cint as O_ASYNC;
+O_CREAT         : cint as O_CREAT;
+O_EXCL          : cint as O_EXCL;
+O_FSYNC         : cint as O_FSYNC;
+O_NDELAY        : cint as O_NDELAY;
+O_NOCTTY        : cint as O_NOCTTY;
+O_NONBLOCK      : cint as O_NONBLOCK;
+O_RDONLY        : cint as O_RDONLY;
+O_RDWR          : cint as O_RDWR;
+O_SYNC          : cint as O_SYNC;
+O_TRUNC         : cint as O_TRUNC;
+O_WRONLY        : cint as O_WRONLY;
+
+// These flags are non-standard, but seems available on Linux and FreeBSD
+O_DIRECTORY     : cint as O_DIRECTORY;
+O_NOFOLLOW      : cint as O_NOFOLLOW;
+O_DIRECT        : cint as O_DIRECT;
+
+
+// These flags are not available on all system. Some are linux specific, some
+// are not yet implemented. Since "as" definition does not generate any code
+// we can keep them here.
+
+// POSIX flags (maybe optional)
+O_CLOEXEC       : cint as O_CLOEXEC;
+O_DSYNC         : cint as O_DSYNC;
+O_RSYNC         : cint as O_RSYNC;
+
+// Linux specific
+O_LARGEFILE     : cint as O_LARGEFILE;
+O_NOATIME       : cint as O_NOATIME;
+O_PATH          : cint as O_PATH;
+
+// The close(2) syscall
+close(fd : cint) : cint as close;
+
+// man page for read and write use ssize_t as return type
+// we defined it here using predefined word type
+typedef ssize_t = word;
+
+// read(2) syscall
+read(fd : cint, buf : void*, len : size_t) : ssize_t as read;
+
+// write(2) syscall
+write(fd : cint, buf : void*, len : size_t) : ssize_t as write;
+
+// Standard INPUT, OUTPUT and ERROR OUTPUT file descriptors
+// We deliberately choose a more usable name
+stdin_fd        : cint as STDIN_FILENO;
+stdout_fd       : cint as STDOUT_FILENO;
+stderr_fd       : cint as STDERR_FILENO;
+
+// END

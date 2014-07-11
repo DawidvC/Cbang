@@ -1,0 +1,86 @@
+/*
+ * Copyright (c) 2010-2012, Marwan Burelle, the LSE Team and contributors
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the <organization> nor the
+ *     names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL MARWAN BURELLE BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+
+/* Wrapper for a minimal set of functions for IOs */
+
+open_import libc_minimal_IO;
+open_import libc_assert;
+
+// Testing wrapper
+
+main() : cint
+{
+  // First test ouput on stdout and stderr
+  write(stdout_fd,"Hello C! on stdout\n",19);
+  write(stderr_fd,"Hello C! on stderr\n",19);
+
+  assert(O_ACCMODE >= 0);
+  assert(O_APPEND >= 0);
+  assert(O_ASYNC >= 0);
+  assert(O_CREAT >= 0);
+  assert(O_EXCL >= 0);
+  assert(O_FSYNC >= 0);
+  assert(O_NDELAY >= 0);
+  assert(O_NOCTTY >= 0);
+  assert(O_NONBLOCK >= 0);
+  assert(O_RDONLY >= 0);
+  assert(O_RDWR >= 0);
+  assert(O_SYNC >= 0);
+  assert(O_TRUNC >= 0);
+  assert(O_WRONLY >= 0);
+
+  // Non-standard flag (but supported by Linux and FreeBSD.)
+  assert(O_DIRECT >= 0);
+  assert(O_DIRECTORY >= 0);
+  assert(O_NOFOLLOW >= 0);
+
+  // POSIX flags that are not working on FreeBSD 8.2
+  // assert(O_CLOEXEC >= 0); // available since FreeBSD 8.3
+  // assert(O_DSYNC >= 0);
+  // assert(O_RSYNC >= 0);
+
+  // Ok opening a file for reading just to test
+  fd : cint;
+  rd : ssize_t;
+  buf : char[1024];
+  fd = open("minimal_IO-test.cb",O_RDONLY,0666);
+  assert(fd >= 0);
+
+  while ( (rd = read(fd,buf,1024)) )
+    {
+      assert(rd > 0);
+      write(stdout_fd, buf, rd);
+    }
+
+  close(fd);
+
+  return 0;
+}
+
+// END

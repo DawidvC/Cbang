@@ -1,0 +1,11 @@
+// Point interfaces for test
+
+interface Point
+{
+  get_x() : float<32>;
+  set_x(x : float<32>) : void;
+  get_y() : float<32>;
+  set_y(y : float<32>) : void;
+  module() : float<32>;
+}
+

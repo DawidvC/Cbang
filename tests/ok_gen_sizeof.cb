@@ -1,0 +1,6 @@
+main () : int<4>
+{
+  a : int<4>;
+
+  a = sizeof (int<4>);
+}

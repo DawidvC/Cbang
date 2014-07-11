@@ -1,0 +1,27 @@
+External Member Function Idiom
+==============================
+
+Une extention possible de C! est d'introduire la possibilite d'ecrire une
+fonction libre et de l'utiliser comme si c'etait une methode a condition que
+son premier parametre soit celui d'un type connu.
+
+Par exemple
+
+    struct A {
+      x : int<32>;
+    }
+
+    zero(A a) : void {
+      a->x = 0;
+    }
+
+    foo() : A
+    {
+      tmp : A;
+
+      tmp.zero();
+
+      return tmp;
+    }
+
+Il y a un soucis par contre, sur le type devant etre utilisé (pointeur tout ca).

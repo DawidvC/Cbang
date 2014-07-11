@@ -1,0 +1,10 @@
+// Test the module_D's reachability
+// The module_A imports the module_D... let's see if we can use the module_D
+// through the module_A!
+
+import module_A;
+
+main() : int<32>
+{
+    return ++module_D::global_var;
+}

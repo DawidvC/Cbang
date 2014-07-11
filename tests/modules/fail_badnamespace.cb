@@ -1,0 +1,12 @@
+// Test for module importing
+
+// Must fail because of the use of an exported function without specifying its
+// namespace.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : int<32>;
+    my_var = identity(42);
+}

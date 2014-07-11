@@ -1,0 +1,7 @@
+open_import a;
+
+foo() : u8
+{
+	return 0;
+}
+

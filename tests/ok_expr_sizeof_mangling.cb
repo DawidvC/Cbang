@@ -1,0 +1,6 @@
+// Be sure type expressions are mangled in sizeof
+
+class C {}
+
+f() : int<+32>
+{ return sizeof(C*); }

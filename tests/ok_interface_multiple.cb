@@ -1,0 +1,33 @@
+/* Simple interface test */
+/* multiple interface support */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface clonable
+{
+  clone(mem: void*): void*;
+}
+
+class A support box clonable
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  get() : void*
+  {
+    return content;
+  }
+
+  clone(mem : void*) : void*
+  {
+    return mem;
+  }
+
+}

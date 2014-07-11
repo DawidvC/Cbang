@@ -1,0 +1,37 @@
+/*
+ * Testing properties
+ */
+
+include "stdio.h";
+
+struct segint {
+  h: int<+16>*;
+  l: int<+16>*;
+}
+
+property P(segint) : int<+32>
+{
+  get { return (*(this.h) << 16) + *(this.l); }
+  set (y : int<+32>) {
+    *(this.h) = y >> 16;
+    *(this.l) = y & 0xffff;
+  }
+}
+
+FormatUInt(f : char*, x : int<+32>) : void as printf;
+FormatUInt16(f : char*, x : int<+16>) : void as printf;
+
+main() : int<32>
+{
+  s : segint;
+  high : int<+16> = 0;
+  low : int<+16> = 0;
+  s.h = &high;
+  s.l = &low;
+  x : P = s;
+  x = 65537;
+  FormatUInt("x : %u\n", x);
+  FormatUInt16("high : %hu\n",high);
+  FormatUInt16("low : %hu\n",low);
+  return 0;
+}

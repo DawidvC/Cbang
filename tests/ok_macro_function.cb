@@ -1,0 +1,13 @@
+#compute_height(width : int<32>) : int<32>
+{
+    height : int<32>;
+    height = width * 3 / 4;
+    return height;
+}
+
+test() : int<32>
+{
+    width : int<32> = 400;
+    height : int<32> = compute_height(width);
+    return height;
+}

@@ -1,0 +1,555 @@
+%% Implementing interfaces in C!
+%% Marwan Burelle - LSE - july 2012
+
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{LSEweek2012}
+  \setbeamercovered{dynamic}
+}
+
+\usepackage{moreverb}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{txfonts}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{calrsfs}
+\usepackage{alltt}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows,snakes,backgrounds,shapes}
+\usetikzlibrary{trees}
+
+\newcommand{\cbang}{{\bf C!}}
+
+\title{\cbang{}}
+\subtitle{Implementing Interfaces}
+
+\author{Marwan Burelle}
+
+\institute{
+  marwan.burelle@lse.epita.fr\\
+  \url{http://www.lse.epita.fr/}
+}
+
+\date{}
+
+\definecolor{darkblgr}{rgb}{0.7,0.7,0.75}
+\setbeamercolor{bSection}{fg=black,bg=darkblgr}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{\insertsection}
+    \begin{beamerboxesrounded}[lower=bSection]{}
+      \begin{center}
+        \huge{\bf \insertsection}
+      \end{center}
+    \end{beamerboxesrounded}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{\insertsubsection}
+    \begin{beamerboxesrounded}[lower=bSection]{}
+      \begin{center}
+        \textbf{\insertsubsection}
+      \end{center}
+    \end{beamerboxesrounded}
+  \end{frame}
+}
+
+\definecolorset{cmyk}{}{}%
+ {olive,0,0,1,.5}
+
+\definecolor{warnbg}{rgb}{0.3,0,0.1}
+\setbeamercolor{warnbl}{fg=white,bg=warnbg}
+\newenvironment{BoxedWarning}
+{\begin{beamerboxesrounded}[lower=warnbl]{}}{\end{beamerboxesrounded}}
+
+\newcommand{\DefBackButton}[2]{\hfil\hyperlink{#1<#2>}{\beamerreturnbutton{back}}}
+
+\setbeamercolor{CamlRep}{fg=olive}
+\newcommand{\CamlRep}[1]{{\usebeamercolor[fg]{CamlRep}\emph{\texttt{#1}}}}
+
+\setbeamercolor{PosYes}{fg=green}
+\newcommand{\yes}[1]{{\usebeamercolor[fg]{PosYes} #1}}
+
+\begin{document}
+
+\definecolor{orange}{rgb}{1,0.3,0}
+\definecolor{kword}{rgb}{0,0.4,0.2}
+\definecolor{dblue}{rgb}{0,0,0.7}
+\definecolor{strcolor}{rgb}{0.5,0.2,0}
+\definecolor{colorlabel}{rgb}{0.7,0,0}
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily,
+  commentstyle=\color{orange},
+  keywordstyle=\color{kword}\bfseries,
+  stringstyle=\color{strcolor},
+  showstringspaces=false,
+  identifierstyle=,
+  emph={CAST},
+  emphstyle=\color{red},
+  emph={[2]tryagain},
+  emphstyle={[2]\color{colorlabel}},
+}
+
+\begin{frame}
+  \titlepage{}
+\end{frame}
+
+\begin{frame}<beamer>
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}
+  \frametitle{Quick Overview of \cbang{}}
+  \begin{itemize}
+  \item System oriented programming language
+  \item Variant of C with a rationnalized syntax.
+  \item Syntactic Sugar.
+  \item Object Oriented extensions.
+  \item \cbang{} is a \emph{compiler-to-compiler} producing standard C code
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Motivation}
+  \begin{itemize}
+  \item \cbang{} was designed for kernel programming
+  \item The aim of the project is to provide modern extensions to C (like
+    \emph{OOP}) without breaking the aspects that make C a good kernel
+    programming language.
+  \item \cbang{} has no run-time depencies: make it easier to integrate in a
+    non-standard environment.
+  \item We try to minimize the amount of \emph{hidden code}: almost all
+    expensive operations are explicit (no hidden object copy for example.)
+  \item Since we produce C code, it is quite easy to integrate \cbang{} pieces
+    of code in existing C projects.
+  \end{itemize}
+\end{frame}
+
+\section{Objects in \cbang{}}
+
+\begin{frame}
+  \frametitle{Object Model}
+  \begin{itemize}
+  \item The \emph{OOP} model provides:
+    \begin{itemize}
+    \item Class definitions with virtual methods (true methods)
+    \item Simple inheritance and subtyping based polymorphism
+    \item Interfaces and abstract methods
+    \item Method overriding
+    \item No overloading
+    \item No visibility control
+    \end{itemize}
+  \item In addition, objects instances follow some rules:
+    \begin{itemize}
+    \item Objects are always pointer
+    \item You can define local object on the stack
+    \item You have to provide your own allocation scheme
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interfaces and Abstract Methods}
+  \begin{itemize}
+  \item You can define interfaces: pure abstract classes with no state and no
+    implementation for methods.
+  \item Interfaces can inherit other interfaces and unlike classes
+    inheritance, you can have multiple inheritance.
+  \item Class can explicitely \emph{support} interfaces (no structural typing)
+  \item When implementing an interface you (as usual) must provides an
+    implementation for each methods in the interface.
+  \item You can have abstract methods in class: methods with no implementation
+  \item Classes with abstract methods can't be instantiated
+  \end{itemize}
+\end{frame}
+
+\section{The Inner Side}
+
+\subsection{Objects}
+
+\begin{frame}
+  \frametitle{Objects in C}
+  \begin{itemize}
+  \item While C does not provides objects, we can use pure C constructions to
+    represent them.
+  \item We only need structure and function pointers.
+  \item Thus, \cbang{} \emph{OOP} extensions can be encoded as (almost) pure
+    syntactic sugar.
+  \item Since we produce C code, we take advantage of automatic offset
+    computation in structure.
+  \item Using structures rather than annonymous table generate more readable
+    code.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Basic Objects}
+  \begin{itemize}
+  \item An object is the association of some data (attributes) and operations
+    on this data (methods)
+  \item We just put function pointers in a structure.
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+    \begin{columns}
+      \begin{column}{3.5cm}
+\begin{lstlisting}
+class obj {
+ get() : int;
+ set(int x) : void;
+ int content;
+}
+\end{lstlisting}
+      \end{column}
+      \begin{column}{6cm}
+\begin{lstlisting}
+struct s_obj {
+ int (*get)(struct s_obj*);
+ void (*set)(struct s_obj*,int);
+ int content;
+};
+\end{lstlisting}
+      \end{column}
+    \end{columns}
+  \end{BoxedExample}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Calling Methods}
+  \begin{itemize}
+  \item To call methods, you just have to find the pointer in the object
+  \item The only things that you need is to provide the \texttt{this} pointer
+    to the method.
+  \item For cascade of methods call you will need temporary variables to cache
+    results of method's calls to avoid multiple calls to the same method.
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+    \begin{columns}
+      \begin{column}{4.5cm}
+\begin{lstlisting}
+o.set(42);
+\end{lstlisting}
+      \end{column}
+      \begin{column}{4.5cm}
+\begin{lstlisting}
+o->set(o,42);
+\end{lstlisting}
+      \end{column}
+    \end{columns}
+  \end{BoxedExample}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Classes and inheritance}
+  \begin{itemize}
+  \item Defining classes is straightforward: a classes is a structure together
+    with the initialization code to fill the structure.
+  \item To avoid unnecessary duplication of pointers to methods, we build an
+    external structure with only methods that will be shared by all instances.
+  \item Inheritance is also straightforward: structures (state and methods)
+    are ordered so that methods described in parent class come first.
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+struct s_obj_vtbl {
+  int (*get)(struct s_obj*, void);
+  void (*set)(struct s_obj*, int);
+};
+struct s_obj {
+  struct s_obj_vtbl *vtbl;
+  int content;
+};
+\end{lstlisting}
+  \end{BoxedExample}
+\end{frame}
+
+\pgfdeclareimage[width=8cm]{Vtbl}{Figs/cbangMethodLayout-extract}
+
+\begin{frame}[fragile]
+  \frametitle{Classes And Inheritance}
+  \begin{center}
+    \pgfuseimage{Vtbl}
+  \end{center}
+\end{frame}
+
+\subsection{Interfaces}
+
+\begin{frame}
+  \frametitle{Issues}
+  \begin{itemize}
+  \item Unlike class inheritance, you can implement several interfaces.
+  \item You can inherit from a class and implement interface.
+  \item \textbf{$\Rightarrow$ We can't rely on structures layout.}
+  \item \emph{What if we use more than one table of methods ?}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Insufficient information}
+  \begin{itemize}
+  \item Interfaces are used to pass objects to function without knowing their
+    real type.
+  \item So, we won't be able to access specific object content that is not
+    described in the interface.
+  \item So, we need to found a way to access some specific fields of an object
+    without knowing the object layout.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dynamic Dispatcher}
+  \begin{itemize}
+  \item A possible solution is to have a function that select the right
+    table of methods.
+  \item This function is just a a big switch using a hash of the interface
+    name to select the right table.
+  \item Now an object will look like:
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+struct s_obj {
+  void *(interface_table)(int);
+  struct s_obj_vtbl *vtbl;
+  // object content
+};
+\end{lstlisting}
+  \end{BoxedExample}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Avoiding Dispatch Overhead}
+  \begin{itemize}
+  \item The previous method induces an overhead at each method call (a
+    function call)
+  \item The idea to avoid this overhead by \emph{transforming} the object when
+    we still have the needed information.
+  \item Once the object is transformed, we don't need the dynamic dispatcher
+    that select the correct method's table.
+  \item Let's take a look at the context first:
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+interface A {
+  get() : cint;
+}
+class B support A {
+  get() : cint { return 42; }
+}
+f1(o : A) : cint { return o.get(); }
+f2(o : B) : cint { return f1(o); }
+\end{lstlisting}
+
+  \end{BoxedExample}
+\end{frame}
+
+\subsection{Transforming Objects}
+
+\begin{frame}[fragile]
+  \frametitle{Injecting Transformation}
+  \begin{itemize}
+  \item While there's various ways to implement objects transformation, the
+    way we inject information is usually always the same.
+  \item The transformation must be injected where we still know the real
+    type of the object.
+  \end{itemize}
+  \begin{BoxedExample}
+    The previous function:
+    {\footnotesize
+\begin{lstlisting}
+f2(o : B) : cint { return f1(o); }
+\end{lstlisting}
+    }
+
+    Into the following:
+
+    {\footnotesize
+\begin{lstlisting}
+f2(o : B) : cint { return f1( CAST(o,A) ); }
+\end{lstlisting}
+    }
+  \end{BoxedExample}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to transform an object}
+  \begin{itemize}
+  \item There's various way to transform an object:
+    \begin{itemize}
+    \item You can change the pointer to the table of methods
+    \item You can build an helper object around your object
+    \item You can have all interfaces in your object and replace the pointer
+      of the real object
+    \end{itemize}
+  \item First two methods has a lot of drawbacks (overhead, inconsistency in
+    concurrent context \ldots )
+  \item The last method need some refinement
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Hosting All Interfaces}
+  \begin{itemize}
+  \item The idea is to have inside the object a block with, for each supported
+    interface, a mini-object with a pointer to corresponding table of methods.
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+struct s_A_vtbl { int (*get)(void); };
+struct s_obj_interface_table {
+  struct { s_A_vtbl *vtbl; } A;
+};
+struct s_obj {
+  struct s_A_vtbl *interfaces;
+  struct s_obj_vtbl *vtbl;
+  // object state
+  struct s_A_vtbl _interfaces;
+};
+#define CAST(_OBJ, _INTER_) \
+  (&((_OBJ)->interfaces->_INTER_))
+\end{lstlisting}
+  \end{BoxedExample}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{And What About \texttt{this} ?}
+  \begin{itemize}
+  \item We need to pass a \texttt{this} pointer to our methods.
+  \item But the pointer we have in the calling context does not correspond to
+    the real object.
+  \item So, we provide a pointer to the real object inside the structure
+    associated to the interface.
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+struct s_obj_interface_table {
+  struct {
+    s_A_vtbl *vtbl;
+    void     *real_this;
+  } A;
+};
+// Calling a method from interface context
+o->vtbl->myMethod(o->real_this);
+\end{lstlisting}
+  \end{BoxedExample}
+\end{frame}
+
+\pgfdeclareimage[width=9cm]{ObjLayout}{Figs/cbangObjecFulltLayout-exp}
+
+\begin{frame}
+  \frametitle{Full Object Layout}
+  \begin{center}
+    \pgfuseimage{ObjLayout}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Transitive Inheritance}
+  \begin{itemize}
+  \item When you support an interface that is itself derived from various
+    interfaces, you can be transformed to any of these interfaces.
+  \item So we need to provide access to these interfaces, but we can be
+    transformed in context where we don't know how:
+  \end{itemize}
+  \begin{BoxedExample}
+    \footnotesize
+\begin{lstlisting}
+interface A { /* Some defs */ }
+interface B : A { /* More defs */ }
+class C support B { /* implem */ }
+
+f1(o : A) { /* some code */ }
+f2(o : B) { f1(o); }
+f3(o : C) { f2(o); }
+\end{lstlisting}
+  \end{BoxedExample}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Solutions ?}
+  \begin{itemize}
+  \item Provide a function (similar to the dynamic dispatcher) that provide a
+    pointer to the good interfaces (\emph{dynamic cast}.)
+  \item Embed recursively interfaces description (probably a lot of
+    space overhead.)
+  \item We also need conversion for comparison operators.
+  \end{itemize}
+\end{frame}
+
+\section{Of Structures And Classes}
+
+\begin{frame}
+  \frametitle{Why Pointers To Objects ?}
+  \begin{itemize}
+  \item C++ offers to manipulate object as pointer or directly.
+  \item I choose to \textbf{not} follow this approach.
+  \item There's almost no reason to transmit objects by copy.
+  \item When you need copy, you should obviously do it \textbf{implicitly}.
+  \item Copy also introduce new issues: when using an object throught one of
+    its parent types or throught an interface, you can't simply rely on C to
+    correctly copy the struct since it doesn't know the size.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Do We Have Classes And Structs in \cbang{}}
+  \begin{itemize}
+  \item You may use structures for other reason than structured data
+  \item A good example is when you want a bunch of contiguous heterogeneous
+    data
+  \item For a lot of cases you don't want meta-data in your structure.
+  \item There's also cases where you want data to be copied to called
+    functions without overhead.
+  \item So, classes and structures serve different purposes and we need both.
+  \item If you want \emph{member functions} (or non-virtual methods) acting on
+    structures you can use \emph{macro-class} in \cbang
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{More on \cbang{}}
+  \begin{itemize}
+  \item Git repository:\\ {\footnotesize
+      \url{http://git.lse.epita.fr/?p=cbang.git}}
+  \item Redmine Project:\\ {\footnotesize
+      \url{http://redmine.lse.epita.fr/projects/cbang}}
+  \item Global Overview Blog's article:\\ {\footnotesize
+      \url{http://blog.lse.epita.fr/articles/12-c---system-oriented-programming.html}}
+  \item \cbang{} syntax overview:\\ {\footnotesize
+      \url{http://blog.lse.epita.fr/articles/23-c---system-oriented-programming---syntax-explanati.html}}
+  \end{itemize}
+\end{frame}
+
+\pgfdeclareimage[width=8cm]{qmark}{Figs/questionMark}
+
+\begin{frame}
+  \frametitle{QUESTIONS ?}
+  \begin{center}
+    \pgfuseimage{qmark}
+  \end{center}
+\end{frame}
+
+
+\end{document}

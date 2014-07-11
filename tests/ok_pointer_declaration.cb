@@ -1,0 +1,6 @@
+foo() : int<4>
+{
+  a : int<4>*;
+
+  return 0;
+}

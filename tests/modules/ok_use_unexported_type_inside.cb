@@ -1,0 +1,10 @@
+// Test for symbol visibility
+
+// Using an typename with the form namespace::typename must work
+
+typedef my_typename = int<32>;
+
+useful_function() : ok_use_unexported_type_inside::my_typename
+{
+    return 42;
+}

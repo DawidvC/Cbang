@@ -1,0 +1,21 @@
+class A
+{
+  x : int<4>;
+
+  getMe() : A
+  {
+    return this;
+  }
+
+  getX() : int<4>
+  {
+    return x;
+  }
+}
+
+foo() : void
+{
+  a : A;
+
+  a.getMe().getMe().getX();
+}

@@ -1,0 +1,8 @@
+// Test for symbol exporting
+
+// Exporting a symbol using the wrong namespace must fail.
+
+main() : int<32>
+{
+    forbidden_ns::my_var : int<32> = 0;
+}

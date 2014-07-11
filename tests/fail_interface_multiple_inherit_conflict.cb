@@ -1,0 +1,18 @@
+/* Simple interface test */
+/* fail: conflict with double inherit  */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+interface A
+{
+  get() : int<32>;
+}
+
+interface xbox : box A
+{
+  set(x : void*) : void;
+}

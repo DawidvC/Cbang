@@ -1,0 +1,16 @@
+class Useless
+{
+    magic : char;
+
+    get_one() : int<64>
+    {
+        return 1;
+    }
+}
+
+my_test() : int<64>
+{
+    useless : local Useless[13, 5];
+    useless[1, 2] = Useless((useless[1, 2] : void *));
+    return useless[1, 2].get_one();
+}

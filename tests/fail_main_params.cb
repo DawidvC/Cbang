@@ -1,0 +1,6 @@
+// Entry point: wrong parameters
+
+main(av: char**) : int<32>
+{
+  return 0;
+}

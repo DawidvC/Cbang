@@ -1,0 +1,6 @@
+// Valid use of return in a void-returning function
+
+return_void() : void
+{
+    return;
+}

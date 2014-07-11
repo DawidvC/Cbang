@@ -1,0 +1,10 @@
+cas(val:  (void* volatile)*, cmp: void* volatile, exch: void* volatile) : (void volatile)*
+{
+  old: void* volatile;
+  asm ("=a" (old); "r" (val), "a" (cmp), "r" (exch);)
+  {
+    lock cmpxchg %3, (%1)
+  }
+  return old;
+}
+

@@ -1,0 +1,12 @@
+// Test using array and pointer
+
+typedef nint = int<4>;
+
+f(a : nint[], p : nint*) : nint*
+{
+  tmp : nint*;
+  tmp = a;
+  a = p;
+  p = tmp;
+  return a;
+}

@@ -1,0 +1,6 @@
+// Invalid use of return: an expression in a function that returns void.
+
+return_void() : void
+{
+    return 1;
+}

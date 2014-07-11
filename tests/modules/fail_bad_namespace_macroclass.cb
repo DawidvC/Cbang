@@ -1,0 +1,16 @@
+// Test for symbol exporting
+
+// Exporting a typename using the wrong namespace must fail.
+
+macro class wrong_module::my_mc : int<+32>
+{
+  get() const : int<+32>
+  {
+    return (this * 2);
+  }
+
+  set(x : int<+32>) : void
+  {
+    this = x/2;
+  }
+}

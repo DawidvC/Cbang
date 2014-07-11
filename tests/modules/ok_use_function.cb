@@ -1,0 +1,11 @@
+// Test for module importing
+
+// Use of exported function.
+
+import import_module;
+
+import_main() : void
+{
+    my_var : int<32>;
+    my_var = import_module::identity(42);
+}

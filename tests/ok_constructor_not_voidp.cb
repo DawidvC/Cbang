@@ -1,0 +1,11 @@
+/* We should pass an object to the constructor, not only a void* pointer */
+
+class Object
+{
+}
+
+test() : void
+{
+    obj : Object;
+    obj = Object(obj);
+}

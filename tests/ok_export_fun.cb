@@ -1,0 +1,3 @@
+ok_export_fun::foo() : void
+{
+}

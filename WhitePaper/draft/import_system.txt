@@ -1,0 +1,64 @@
+Imports
+=======
+
+C! n'a pas de systeme d'import de modules pour le moment, que ce soit pour les
+modules internes ou externes.
+
+    import toto;
+
+    foo() : void {
+      toto::dump();
+    }
+
+Dans l'exemple de code precedent, on importe le module "toto" qui est contenu
+dans le fichier toto.cb
+
+Les symboles et types qui seront exportés sont ceux qui sont precedés de
+l'indication de namespace devant.
+
+    struct A      { } /* non exporté */
+    struct foo::B { } /* exporté */
+
+les fonctions qui sont indiqué avec un namespace seront exportées, les autres
+seront statiques.
+
+Fichiers d'interface C!
+-----------------------
+
+Pour avoir la definition d'un symbole externe (venant du C ou bien d'une
+bibliothèque déjà compilée) il suffit d'indiquer le symbole, sans sa définition
+comme en C :
+
+    foo() : int<32>;
+
+permet d'acceder a une fonction foo definie ailleurs.
+
+Si il y a une indication de namespace, cette fonction est mangle selon le
+mangling C!, sinon, c'est une fonction C.
+
+Quand on lit un import, on s'occupe uniquement des signatures, et non du code
+contenu, il est donc possible de definir des interfaces externes comme ca.
+
+On peut donc maintenant acceder a du C depuis C! en ecrivant un fichier
+d'interface C! contenant les bonnes definitions.
+
+Question : Quand on veux s'interfacer avec du C, on a malheureusement souvent
+besoin d'utiliser des macros, Et il faut trouver une methode pour les
+reutiliser sans avoir besoin de redefinir une grammaire complete pour ca.
+
+En effet, en C!, une macro, c'est un call a une fonction externe, sans type.
+
+Peut etre que definir un mot clef `macro` suffirai pour pouvoir ecrire :
+
+    macro FOO(a, b, c)
+
+et ensuite pouvoir l'utiliser.
+
+Est-ce que ca pose probleme ?
+
+Interface d'un module C!
+------------------------
+
+A partir d'un module C! on peut en deduire son interface. Qui sera ensuite
+generée sous forme de fichier header C.
+

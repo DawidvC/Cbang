@@ -1,0 +1,112 @@
+/* Basic List implem */
+
+include "stdlib.h";
+
+malloc(s : int<+32>) : void* as malloc;
+
+class innerlist
+{
+  init(x:void*,l:innerlist)
+  {
+      value = x;
+      _next = l;
+  }
+  value : void*; // Used for ugly polymorphism
+  _next  : innerlist;
+
+  get() : void*
+  {
+    return value;
+  }
+
+  next() : innerlist
+  {
+    return _next;
+  }
+
+  set(x : void*) : void
+  {
+    value = x;
+  }
+}
+
+class listIterator
+{
+  init(l:innerlist)
+  {
+      current = l;
+      start = l;
+  }
+  current : innerlist;
+  start : innerlist;
+
+  hasNext() : int<32>
+  {
+    return (current && current.next());
+  }
+
+  next() : void
+  {
+    if (current)
+      current = current.next();
+  }
+
+  reset() : void
+  {
+    current = start;
+  }
+
+  get() : void*
+  {
+    val : void* = NULL;
+    if (current)
+      val = current.get();
+    return val;
+  }
+
+  set(x : void*) : void
+  {
+    if (current)
+      current.set(x);
+  }
+
+}
+
+class list
+{
+  l : innerlist = NULL;
+  s : int<+32> = 0;
+
+  add(x : void*) : void
+  {
+    tmp : innerlist;
+    tmp = innerlist(malloc(sizeof (innerlist)),x,l);
+    l = tmp;
+    s += 1;
+  }
+
+  size() : int<+32>
+  {
+    return s;
+  }
+
+  getIterator() : listIterator
+  {
+    it : listIterator;
+    it = listIterator(malloc(sizeof (listIterator)),l);
+    return it;
+  }
+
+  get(pos: int<+32>) : void*
+  {
+    val: void* = NULL;
+    if (pos < s)
+      {
+	for (l:innerlist = this.l; l && pos; l = l.next())
+	  pos -= 1;
+	val = l.get();
+      }
+    return val;
+  }
+
+}

@@ -1,0 +1,25 @@
+/* Simple interface test */
+
+interface box
+{
+  add(x : void*) : void;
+  get() : void*;
+}
+
+class A support box
+{
+  content: void* = (0:void*);
+  add(x: void*) : void
+  {
+    content = x;
+  }
+
+  get() : void*
+  {
+    return content;
+  }
+
+}
+
+class B : A support box
+{}

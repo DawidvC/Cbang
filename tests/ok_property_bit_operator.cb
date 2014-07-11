@@ -1,0 +1,34 @@
+/*
+ * Testing properties
+ */
+
+include "stdlib.h";
+
+abort() : void as abort;
+
+struct segint {
+  h: int<+16>*;
+  l: int<+16>*;
+}
+
+property P(segint) : int<+32>
+{
+  get { return (*(this.h) << 16) + *(this.l); }
+  set (y : int<+32>) {
+    *(this.h) = y >> 16;
+    *(this.l) = y & 0xffff;
+  }
+}
+
+main() : int<32>
+{
+  high : int<+16> = 1;
+  low : int<+16> = 1;
+  x : int<+32>;
+  inner : segint;
+  inner.h = &high; inner.l = &low;
+  p : P = inner;
+  x = p << 1;
+  if (x != 2 * 65537) abort();
+  return 0;
+}

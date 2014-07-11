@@ -1,0 +1,11 @@
+// Entry point with parameters
+
+main(ac: int<32>, av: char**) : int<32>
+{
+  s : char*;
+  if (ac > 1)
+    s = av[1];
+  else
+    s = (0:void*);
+  return 0;
+}

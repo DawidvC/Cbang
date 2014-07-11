@@ -1,0 +1,12 @@
+// Test for double declarations of a method
+
+class A
+{
+    my_meth() : void
+    {
+    }
+
+    my_meth() : void
+    {
+    }
+}

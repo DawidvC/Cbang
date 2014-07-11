@@ -1,0 +1,12 @@
+macro class foo : int<32>
+{
+  get() : int<32>
+  {
+    return this;
+  }
+}
+
+f(a : foo) : foo
+{
+  return a;
+}

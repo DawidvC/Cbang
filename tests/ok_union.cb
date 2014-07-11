@@ -1,0 +1,6 @@
+/* Basic test for union */
+
+union u {
+  i : int<32>;
+  p : void*;
+}

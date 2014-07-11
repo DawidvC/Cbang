@@ -1,0 +1,560 @@
+= C! (cbang) =
+
+This is a draft of a white paper describing C! (pronounced cbang.) C!
+is an adaptation of the C language, in its actual form, the project
+won't be compiled directly but instead transformed in standard C code.
+
+== Basic C! syntax modifications ==
+
+Most syntax of C! obey to the same rules as C. Differences are quiet
+simple:
+
+=== Variable declarations ===
+
+SYNTAX (x: identifier, type_expr: type expression):
+
+  x: [modifiers] type_expr;
+| x: [modifiers] type_expr = value;
+
+[modifiers] is a (possibly empty list) of C qualifiers (const,
+volatile or static.)
+
+=== Type algebra ===
+
+SYNTAX
+(ti,t: type expressions,
+ name: identifier,
+ ei,e: integer expressions (compile time evaluable)
+ sd: struct description,
+ ud: enum description,
+ fd: flag description)):
+
+  t*			/* Pointer */
+| int<e>		/* signed integer of size e */
+| int<+e>		/* unsigned integer of size e */
+| float<e>		/* float number of size e */
+| t[e1,...,en]		/* n-array of type_name */
+| (t1,...,tn):t		/* function's pointer */
+| struct name		/* incomplete structure */
+| struct name sd	/* structure */
+| struct sd		/* anonymous structure */
+| union name		/* incomplete union */
+| union name sd		/* union */
+| union sd		/* anonymous union */
+| enum name		/* incomplete enum */
+| enum name ud		/* enum */
+| enum ud		/* anonymous enum */
+
+SYNTAX structure or union descriptions
+(ti,t: type expressions,
+ ni: identifier,
+ s: size in bits):
+
+  {
+    n1: t1;
+    ...;
+    nk: tk;
+  }
+| {
+    ...;
+    ni: ti<s>;
+    ...;
+  }			/* structure with bitfield */
+
+=== Bit access as array ===
+
+One can access (test or set) bits in integer values using array (x[e])
+notations.
+
+== class and macro class ==
+
+We want to extend the C language with very basic OO concepts, classes,
+objects and basic inheritance.
+
+The idea is to have classes and objects that can be translated in C
+with minimal runtime overhead (time or space.)
+
+=== classes ===
+
+Introducing basic OO features need class definitions, possible
+inheritance and object instantiation.
+
+So basic examples:
+
+class Point
+{
+  x: float<32>;
+  y: float<32>;
+
+  getX() : float<32> { return x; }
+  getY() : float<32> { return y; }
+
+  setX(float<32> _x) : void { x = _x ;}
+  setY(float<32> _y) : void { y = _y ;}
+
+  // we can safely use libC's functions
+  mod() : float<32> { return sqrt(x*x + y*y); }
+
+  // As for previous example, we use a libC functions. This is
+  // convenience for simpler examples.
+  toString() : char*
+  {
+    r: char*;
+    asprintf(&r, "(%f,%f)", x, y);
+    return r;
+  }
+
+}
+
+Inheritance:
+
+class ColoredPoint : Point
+{
+  color: int<+32>;
+
+  getColor() : int<+32> { return color; }
+
+  setColor(int<+32> c) : void { color = c; }
+
+  // method overidding simply replace the original function's pointer
+  // so there isn't any way to call the parent method (should be
+  // improve.)
+  toString() : char*
+  {
+    r: char*;
+    asprintf(&r, "(%f,%f,%d)", x, y, color);
+    return r;
+  }
+
+}
+
+NOTE: If we limit inheritance to simple inheritance, we can do it
+quite simply: an object is a structure with method as function's
+pointer fields, so inheritance is just structure extension (when
+adding properties or methods) and initial values change (for
+overidding.) Since we have full control over code generation, we can
+simply and safely reorder fields in structure so that an extended
+class can be used in place of the parent class.
+
+Object creation is quite simple:
+
+  // x is pointer (void*) to a sufficient memory area
+  p: Point = Point(x);
+  cp: ColoredPoint = ColoredPoint(x);
+  // since ColoredPoint is a direct extension of Point, we can use its
+  // constructors in place of Point constructor.
+  cp2: Point = ColoredPoint(x);
+
+Objects will always be pointer to structure, there is no reason to
+bypass the indirection (it will avoid a lot of issues in passing
+object as function's arguments, or returning object as result.)
+
+Generated code for classes and objects should be as simple as
+possible: a class is a structure definition with a constructor
+allocating the structure and filling methods fields with function's
+pointer. Methods definition will be C's functions with a this
+parameter. A possible example of generated code for previous class is:
+
+typedef struct class_Point	*Point;
+
+struct class_Point
+{
+  // first properties
+  float		x, y;
+
+  // then method's fields
+  float (*getX)(Point);
+  float (*getY)(Point);
+  void  (*setX)(Point,float);
+  void  (*setY)(Point,float);
+  char* (*toString)(Point);
+};
+
+float class_Point_getX(Point this)
+{
+  return this->x;
+}
+
+float class_Point_getY(Point this)
+{
+  return this->y;
+}
+
+void class_Point_setX(Point this, float _x)
+{
+  this->x = _x;
+}
+
+void class_Point_setY(Point this, float _y)
+{
+  this->y = _y;
+}
+
+char *class_Point_toString(Point this)
+{
+  char                 *r;
+  asprintf(&r, "(%f,%f)", this->x, this->y);
+  return r;
+}
+
+Point new_Point()
+{
+  Point                 this;
+  // again allocation should be better defined ...
+  this = malloc(sizeof (struct class_Point));
+  this->getX = class_Point_getX;
+  this->getY = class_Point_getY;
+  this->setX = class_Point_setX;
+  this->setY = class_Point_setY;
+  this->toString = class_Point_toString;
+}
+
+Generated code for inheritance will just "use" the same generated code
+as parent classes and only add new fields and replace overidded
+methods.
+
+typedef struct class_ColoredPoint *ColoredPoint;
+struct class_ColoredPoint
+{
+  // first properties
+  float		x, y;
+
+  // then method's fields
+  // Preserve typing of "unoverrided" methods so the cast will be
+  // simpler.
+  float (*getX)(Point);
+  float (*getY)(Point);
+  void  (*setX)(Point,float);
+  void  (*setY)(Point,float);
+  // toString is overidded, so change its parameters type.
+  char* (*toString)(ColoredPoint);
+
+  // Added fields
+  int		color;
+  int   (*getColor)(ColoredPoint);
+  void  (*setColor)(ColoredPoint, int);
+};
+
+// unoverrided methods already exist, don't redefine them
+
+// overidded method toString
+char *class_ColoredPoint_toString(ColoredPoint this)
+{
+  char                 *r;
+  asprintf(&r, "(%f,%f,%d)", this->x, this->y, this->color);
+  return r;
+}
+
+// new methods
+int class_ColoredPoint_getColor(ColoredPoint this)
+{
+  return this->color;
+}
+
+void class_ColoredPoint_setColor(ColoredPoint this, int c)
+{
+  this->color = c;
+}
+
+// of course, we redefine constructor ...
+ColoredPoint new_ColoredPoint()
+{
+  ColoredPoint		this;
+  // again allocation should be better defined ...
+  this = malloc(sizeof (struct class_ColoredPoint));
+  this->getX = class_Point_getX;
+  this->getY = class_Point_getY;
+  this->setX = class_Point_setX;
+  this->setY = class_Point_setY;
+  this->toString = class_ColoredPoint_toString;
+  this->getColor = class_ColoredPoint_getColor;
+  this->setColor = class_ColoredPoint_setColor;
+  return this;
+}
+
+Finding the rigth function's pointer for a method's field is quite
+simple: it will be "copied" from the parent's def.
+
+Now, translating fields access or method's calls is quite simple, for
+example the following code:
+
+  p:   Point        = Point();
+  cp:  ColoredPoint = ColoredPoint();
+  cp2: Point        = ColoredPoint();
+  p.setX(666.);
+  p.setY(42.);
+  cp.setX(p.getY());
+  cp.setY(p.getX());
+  cp.setColor(0);
+  cp2.setX(0);
+  cp2.setY(0);
+  printf("ColoredPoint: %s\n",cp.toString());
+  printf("Point: s\n",cp2.toString());
+
+  // the following call will statically fail, since cp2 is normaly a
+  // Point:
+  cp2.setColor(0);
+
+should be translated as:
+
+  Point			p;
+  p = new_Point();
+  ColoredPoint		cp;
+  cp = new_ColoredPoint();
+  // cp2 is defined as Point, but initialized as ColoredPoint.
+  Point			cp2;
+  cp2 = (Point)new_ColoredPoint();
+  p->setX(p, 666.);
+  p->setY(p, 42.);
+  cp->setX((Point)cp, p->getY(p));
+  cp->setY((Point)cp, p->getX(p));
+  cp->setColor(cp,0);
+  cp2->setX((Point)cp2, 0);
+  cp2->setY((Point)cp2, 0);
+  printf("ColoredPoint: %s\n",cp->toString(cp));
+  // be ware, cp2->color wasn't initialized ...
+  printf("Point: %s\n",cp2->toString(cp2));
+
+NOTE (to be discussed): We probably won't use constructor overloading,
+so we can define class "à la" OCaml: a class takes constructions
+parameters.
+
+class Point(float<32> _x, float<32> _y)
+{
+  x : float<32> = _x;
+  y : float<32> = _y;
+
+  // same methods ...
+
+  // constructors bloc, fields and parameters are already defined
+  // here.
+  initialize
+  {
+    // nothing special for this example, just a use print to show what
+    // can be done ...
+    printf("new Point = %s\n", this.toString());
+  }
+
+  // destruction can also defines code ...
+  finalize
+  {
+    // again, just a matter of example ...
+    printf("deleting Point = %s\n", this.toString());
+  }
+}
+
+=== macro classes ===
+
+**** Should be update ! ****
+
+We also need OO aspects for "non object" kind of values. As for bit
+access described earlier, we want a simple syntax to perform common
+operations on "atomic values" without building an object to
+encapsulate operations. This is the notion of macro class.
+
+For example, defining status from wait syscall (based on glibc/linux
+implem), one will do:
+
+macro class waitstatus: int<4>
+{
+const:
+  int exit       { (this & 0xff00) >> 8 }
+  int termsig    { this & 0x7f }
+  int ifexited   { this.termsig == 0 }
+  int ifsignaled { (((int<1>)((this & 0x7f) + 1) >> 1) > 0) }
+}
+
+Now, one can write:
+
+  status: waitstatus;
+  /* ... fork ... */
+  wait(&status);
+  if (status.ifexited)
+    { // normal terminaison ...
+      ... status.exit ...
+    }
+  if (status.ifsignaled)
+    { // process killed by a signal ...
+      ... status.termsig ...
+    }
+
+the "const:" category denotes direct value usage (i.e. no side effect,
+so target value could be any expression of the right type.) But, non
+"const" methods can also be defined as in:
+
+typdef s_tv : struct
+{
+  sec: int<+4>;
+  usec: int<+4>;
+};
+
+macro class tv : s_tv
+{
+  void usec:add(us:int<+4>)
+  {
+    this.sec:add((us + this.usec) / 1000000);
+    this.usec = (us + this.usec) % 1000000;
+  }
+
+  void sec:add(s:int<+4>)
+  {
+    this.sec += s;
+  }
+
+  get const : int<+64>
+  {
+    return 1000000 * this.sec + this.usec;
+  }
+
+}
+
+In this example, non const methods must be translate carefully and can
+only apply to constant left expression (variables, fields or array's
+cells, or at least any left values that don't need computation.)
+
+You could notice that const methods have no return statement, they
+should be directly transformed as macro in C.
+
+Namespace notation, could be used to attach a methods to a field in
+the encapsulated structure (with no real semantic tricks.)
+
+NOTE: we should also be able to define macro class using ASM code with
+a convenient syntax and calling convention ...
+
+== Adavanced topic: Template and/or Generics ==
+
+In order to implement "generic" code, we should be able to provide
+high-level polymorphism. Polymorphism (apart from basic subtyping
+polymorphism) often comes from two "fashions" in object oriented
+languages:
+
+* Template: template based polymorphism uses code rewriting/generation
+  to provide generic constructions. In simple words, templated
+  constructions will be regenerated for each specific use case. It's
+  allow static complex constructions and static specializations.
+* Generics: Generics are derived from traditionnal polymorphism is
+  functionnal language (ML or System F.) The purpose of Generics is to
+  add type variables in the type algebra and perform static validation
+  on Generics instantiation using unification. Normally, Generics are
+  a static features: they won't appear in compiled code. Using an
+  erasure semantics is not mandatory, but is the simple, unintrusive
+  way of doing the job. Erasure semantics may only impacts some
+  specific cases of overloading and type case/tests, so it is most of
+  the time a good choice.
+
+We can add both techniques (in fact, we are already doing so kind of
+templating over C code here.) Templates increase code size but are
+simpler to integrate (you can do that with a basic substitution.) On
+the other hand, Generics keep code as much as the same size (in facts,
+we can add generics as a pre-pass, then erase them and continue as if
+they wasn't there) but need a more complex validation pass (in fact,
+they need a correct type systems !)
+
+Templates often introduce another drawback: compilation error
+messages! Since, code is regenerated, error may pop after template
+instantiation and respotting the original source code error can prove
+to be painful, so most of the time template's errors are unreadable
+and even unusable at all. On the other hand, while templates provide
+specialization possibilities and even implicit specializations,
+Generics constraints generic data to be boxed, or at least tide to a
+specific size.
+
+Since our goal is minimal extensions for convenience improvement, we
+should study a little bit more how those constructions can improve our
+language.
+
+=== Using Generics for generic data structures ===
+
+One of the most common usage of polymorphism is generic data
+structures and especially generic containers. In C code, to do that,
+we use implicit cast on void* type, the major drawback is the type
+information weakening: when putting a pointer into a containers, we
+loose its target type and then can misuse it latter.
+
+Generics can "regain" type safety over generic containers, for example
+the following C code for linked list:
+
+typedef struct s_list  *list;
+struct s_list
+{
+  void                 *data;
+  list                  next;
+};
+
+list add(void *x, list l)
+{
+  list                  tmp;
+  tmp = malloc(sizeof (struct s_list));
+  tmp->data = x;
+  tmp->next = l;
+  return tmp;
+}
+
+void *takeHead(list *l)
+{
+  void                 *r;
+  list                  tmp;
+  tmp = *l;
+  r = tmp->data;
+  *l = tmp->next;
+  free(tmp);
+  return r;
+}
+
+can be improve using generics (Java's generics syntax upon classic C syntax):
+
+typedef struct s_list<T>  *list<T>;
+struct s_list<T>
+{
+  T                     data;
+  list<T>               next;
+};
+
+<T> list<T> add(T x, list<T> l)
+{
+  list<T>               tmp;
+  tmp->data = x;
+  tmp->next = l;
+  return tmp;
+}
+
+<T> T takeHead(list<T> *l)
+{
+  T                     r;
+  list<T>               tmp;
+  tmp = *l;
+  r= tmp->data;
+  *l = tmp->next;
+  free(tmp);
+  return r;
+}
+
+Now, when using our list, we need to specify a real type for T and
+thus every operations using list will be statically type-checked. Once
+validated, we only need to "erase" Generics elements (<T> notations)
+and replace T occurences with void* to recover the original code.
+
+Every type that can safely be cast to void* or from void* can thus be
+used in our lists. For example:
+
+  list<int>             l = NULL;
+  l = add(42, l);
+  printf("%d\n",takeHead(&l));
+  l = add(3.14, l); // Compile time error !
+
+=== Templates for code generation helpers ==
+
+Since our purpose is improving C's syntax with convenient but
+efficient constructions (or at least, constructions bounded to the
+simple C runtime strategy), it can be usefull to let coders define
+there one template of C code (or maybe ASM code) for particular
+extensions or for user defined extensions.
+
+This allow specialized code generations and especially architecture
+depent code production.
+
+A good example is allocation management. Most userland based C code
+use the standard functions malloc and free (and eventually realloc or
+calloc.) But, in some specific cases or for kernel code, it will be
+usefull to be able to define allocation mechanism:
+

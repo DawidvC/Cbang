@@ -1,4 +1,0 @@
-Cbang
-=====
-
-C! programming language
